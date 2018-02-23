@@ -1,18 +1,22 @@
 package cage
 
 type Tenant struct {
-  *BaseAttributes
-  NameAlias string
-  Description string
+  BaseAttributes
 }
 /* NewTenant creates a new Tenant with the appropriate default values */
-func NewTenant(name string, alias string, descr string) {
-  t = new(Tenant)
-  t.Name = name
-  t.NameAlias =  alias
-  t.Description = descr
-  t.Status = "created"
-  t.DN = fmt.Sprintf("uni/%s", name)
-  t.RN = fmt.Sprintf("tn-%s", name)
-  return t
+func NewTenant(name string, alias string, descr string) *Tenant{
+  resourceName := fmt.Sprintf("rn-%s", name)
+  attrs := BaseAttributes{
+    Name: name,
+    NameAlias: alias,
+    Description: descr,
+    Status: "created",
+    ObjectClass: "fvTenant",
+    DN: fmt.Sprintf("uni/%s", resourceName),
+    RN: resourceName
+  }
+
+  t := Tenant{BaseAttributes: attrs}
+  //Do any additional construction logic here.
+  return &t
 }

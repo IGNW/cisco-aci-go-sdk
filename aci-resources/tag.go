@@ -5,6 +5,6 @@ type Tag struct {
   Status string
 }
 
-func NewTag(tagName string) Tag {
-  return &Tag{Name: tagName, Status: "created"}
+func NewTag(tagName string) *Tag {
+  return &Tag{Name: tagName, Status: "created", ObjectName: "tagInst"}
 }

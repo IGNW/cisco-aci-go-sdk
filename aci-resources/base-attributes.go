@@ -6,4 +6,7 @@ type BaseAttributes struct {
   DN string
   Status string
   Tags []Tag
+  NameAlias string
+  Description string
+  ObjectClass string
 }
