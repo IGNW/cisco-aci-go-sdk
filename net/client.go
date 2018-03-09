@@ -16,6 +16,7 @@ type Client struct {
 	BaseURL    *url.URL
 	UserAgent  string
 	httpClient *http.Client
+	AuthToken  *Token
 }
 
 func (c *Client) newRequest(method, path string, body *gabs.Container) (*http.Request, error) {
@@ -87,7 +88,7 @@ func (c *Client) Authenticate(name string, pwd string) (*http.Response, error) {
 /** MakeInsecureHTTPClient returns a http.Client for use by the API Client
 but with insecure HTTPS params, namely bypassing TLS Verification and
 downgrading ciphers. ACI does not support TLS 1 and there seems to be an
-issue upgrading to TLS 1.2
+issue upgrading to TLS 1.2 so inhere we force the use of TLS 1.1
 */
 func (c Client) MakeInsecureHTTPClient() *http.Client {
 	tr := &http.Transport{
