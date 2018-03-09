@@ -3,10 +3,12 @@ package cage
 import (
 	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
+	"time"
 
 	"github.com/Jeffail/gabs"
 )
@@ -16,7 +18,7 @@ type Client struct {
 	BaseURL    *url.URL
 	UserAgent  string
 	httpClient *http.Client
-	AuthToken  *Token
+	AuthToken  AuthToken
 }
 
 func (c *Client) newRequest(method, path string, body *gabs.Container) (*http.Request, error) {
@@ -47,16 +49,13 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 	}
 	defer resp.Body.Close()
 
-	//err = json.NewDecoder(resp.Body).Decode(v)
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	bodyString := string(bodyBytes)
-	fmt.Printf("%#v", bodyString)
-	//err = xml.Unmarshal(string(resp.Body), &v)
+	err = json.NewDecoder(resp.Body).Decode(&v)
+
 	return resp, err
 }
 
 // Authenticate makes a login request with the provided name and password
-func (c *Client) Authenticate(name string, pwd string) (*http.Response, error) {
+func (c *Client) Authenticate(name string, pwd string) error {
 	//authRoute := "/aaaLogin"
 	//Used to refresh the session cookie
 	//refreshRoute := "/aaaRefresh"
@@ -72,23 +71,67 @@ func (c *Client) Authenticate(name string, pwd string) (*http.Response, error) {
 	json.SetP(name, "aaaUser.attributes.name")
 	json.SetP(pwd, "aaaUser.attributes.pwd")
 
-	fmt.Print(json.String())
-
 	method := "POST"
 	path := "/api/mo/aaaLogin.json"
 	req, err := c.newRequest(method, path, json)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var response interface{}
-	return c.do(req, response)
+
+	c.do(req, &response)
+
+	data, err := gabs.Consume(response)
+
+	var valuePath, token string
+	var createdAt, expiresIn int64
+	var expiry time.Time
+
+	if valuePath = "imdata.aaaLogin.attributes.token"; data.ExistsP(valuePath) {
+		token = data.Path(valuePath).Data().([]interface{})[0].(string)
+		fmt.Printf("TOKEN: %v\n", token)
+	} else {
+		return fmt.Errorf("Token was not found in response,\n was expected at %v", valuePath)
+	}
+
+	if valuePath = "imdata.aaaLogin.attributes.creationTime"; data.ExistsP(valuePath) {
+		createdAtStr := data.Path(valuePath).Data().([]interface{})[0].(string)
+		createdAt, err = strconv.ParseInt(createdAtStr, 10, 64)
+		if err != nil {
+			return fmt.Errorf("Could not parse creationTime got error: %v", err)
+		}
+	} else {
+		return fmt.Errorf("creationTime was not found in response,\n was expected at %v", valuePath)
+	}
+
+	if valuePath = "imdata.aaaLogin.attributes.refreshTimeoutSeconds"; data.ExistsP(valuePath) {
+		expiresInStr := data.Path(valuePath).Data().([]interface{})[0].(string)
+		fmt.Printf("%v", expiresIn)
+		expiresIn, err = strconv.ParseInt(expiresInStr, 10, 64)
+		if err != nil {
+			return fmt.Errorf("Could not parse refreshTimeOutSeconds got error: %v", err)
+		}
+	} else {
+		return fmt.Errorf("refreshTimeOutSeconds was not found in response,\n was expected at %v", valuePath)
+	}
+	fmt.Printf("CREATED AT: %v\n", createdAt)
+	fmt.Printf("LIVE TIL: %#v\n", expiresIn)
+	fmt.Printf("WILL EXP:  %v\n", (createdAt + expiresIn))
+
+	expiry = time.Unix((createdAt + expiresIn), 0)
+
+	c.AuthToken = AuthToken{
+		Token:  token,
+		Expiry: expiry,
+	}
+	return err
 }
 
 /** MakeInsecureHTTPClient returns a http.Client for use by the API Client
 but with insecure HTTPS params, namely bypassing TLS Verification and
 downgrading ciphers. ACI does not support TLS 1 and there seems to be an
-issue upgrading to TLS 1.2 so inhere we force the use of TLS 1.1
+issue upgrading to TLS 1.2
 */
 func (c Client) MakeInsecureHTTPClient() *http.Client {
 	tr := &http.Transport{

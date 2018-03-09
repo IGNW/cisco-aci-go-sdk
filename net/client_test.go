@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"testing"
-
-	"github.com/Jeffail/gabs"
 )
 
 func TestAuthenticate(t *testing.T) {
@@ -16,35 +14,19 @@ func TestAuthenticate(t *testing.T) {
 			//Host:   "73.254.132.17:8480",
 			Host: "73.254.132.17:8443",
 		},
-		UserAgent: "",
+		UserAgent: "go-test",
 	}
+
 	c.httpClient = c.MakeInsecureHTTPClient()
 
-	response, err := c.Authenticate("admin", "password")
+	err := c.Authenticate("admin", "password")
 
-	fmt.Printf("%v\n", err)
-	fmt.Printf("%v", response)
+	fmt.Printf("AUTH: %#v\n", c.AuthToken)
 
-	if err != nil {
+	if c.AuthToken.IsValid() == true {
+		fmt.Printf("TOKEN EXPIRED: %v\n", c.AuthToken.Expiry)
+		fmt.Printf("ERROR: %v\n", err)
 		t.Fail()
 	}
-}
 
-func TestGabsBehavior(t *testing.T) {
-	data, _ := gabs.ParseJSON([]byte(`{
-		fvTenant: {
-			"foo" : "bar",
-			
-		}	
-	}`))
-
-	data2, _ := gabs.ParseJSON([]byte(`{
-		"one" : {
-			"two" : "2",
-			"three": "3"
-	}`))
-
-	data.Consume(data2)
-
-	fmt.Printf(data)
 }

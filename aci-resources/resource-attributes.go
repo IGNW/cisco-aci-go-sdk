@@ -6,6 +6,9 @@ import (
 	"github.com/Jeffail/gabs"
 )
 
+/**ResourceAttributes represents the generic properties of *most*
+ACI resources
+*/
 type ResourceAttributes struct {
 	Name         string
 	ResourceName string
@@ -36,26 +39,6 @@ type ParentInterface interface {
 	AddChild(child ResourceInterface)
 	AddChildren(children []ResourceInterface)
 }
-
-// /** MaketResourceName encapsulates the (simple) creation of a resource name from a prefix and name within
-// the ResourceAttibutes struct for re-use by each resource type.
-// */
-// func (r *ResourceAttributes) MakeResourceName(prefix string, name string) {
-// 	rn := fmt.Sprintf("%s-%s", prefix, name)
-// 	r.ResourceName = rn
-// }
-
-// // SetDomainname encapsualtes the creation of a domain name
-// func (r *ResourceAttributes) MakeDomainName(parentDN string) {
-// 	if []byte(r.ResourceName) == nil {
-// 		r.MakeResourceName()
-// 	}
-// 	if r.Parent != nil {
-// 		r.DomainName = fmt.Sprintf("%s/%s", r.Parent.ResourceName, r.ResourceName)
-// 	} else {
-// 		r.DomainName = &r.ResourceName
-// 	}
-// }
 
 func (r *ResourceAttributes) CreateDefaultPayload() *gabs.Container {
 
