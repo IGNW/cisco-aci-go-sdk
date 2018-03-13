@@ -19,26 +19,23 @@ type ResourceAttributes struct {
 	NameAlias    string
 	Description  string
 	ObjectClass  string
-	Parent       ParentInterface
+	Parent       interface{}
 }
 
 /** Defines the methods an object must have to be considered to have implemented the ResourceInterface,
 which can be used as an arugment type in a method
 */
 type ResourceInterface interface {
-	CreateAPIPayload() gabs.Container
-	New(name string, nameAlias string, description string) ResourceInterface
-	Save() interface{}
+	CreateAPIPayload() *gabs.Container
+	Save()
+	Delete()
+	GetDomainName() string
 }
 
-/** Defines the methods an object must have to be considered to have implemented the ParentInterface,
-which can be used as an arugment type in a method
-This is seperated from the ResourceInterface since not all resources can be parents to other resources
-See also: squares vs rectangles
-*/
-type ParentInterface interface {
-	AddChild(child ResourceInterface)
-	AddChildren(children []ResourceInterface)
+func (r *ResourceAttributes) Save()   {}
+func (r *ResourceAttributes) Delete() {}
+func (r *ResourceAttributes) GetDomainName() string {
+	return r.DomainName
 }
 
 func (r *ResourceAttributes) CreateDefaultPayload() *gabs.Container {
@@ -99,5 +96,10 @@ func (r *ResourceAttributes) AddTagsToPayload(data *gabs.Container) {
 
 // AddTag adds a tag to a given resource. Returns bool for status, and err if any was encountered
 func (r *ResourceAttributes) AddTag(name string) {
-	r.Tags = append(r.tags, Tag.New(name))
+	r.Tags = append(r.Tags, NewTag(name))
+}
+
+func (r *ResourceAttributes) SetParent(parent ResourceInterface) {
+	r.Parent = parent
+	r.DomainName = fmt.Sprintf("s%/s%", parent.GetDomainName(), r.ResourceName)
 }

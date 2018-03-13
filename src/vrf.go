@@ -9,22 +9,23 @@ type VRF struct {
 	BridgeDomains []*BridgeDomain
 }
 
-func NewVRF(name string, alias string, descr, string, belongsTo BaseAttributes) *VRF {
+/* New creates a new Tenant with the appropriate default values */
+func NewVRF(name string, alias string, descr string) Tenant {
+	resourceName := fmt.Sprintf("ctz-%s", name)
 
-	resourceName := fmt.Sprintf("ctx-%s", name)
-	attrs := ResourceAttributes{
-		Name:        name,
-		NameAlias:   alias,
-		Description: descr,
-		Status:      "created",
-		ObjectClass: "fvCtx",
-		DN:          fmt.Sprintf("%s/%s", belongsTo.DN, resourceName),
-		RN:          resourceName,
+	t := VRF{ResourceAttributes{
+		Name:         name,
+		NameAlias:    alias,
+		Description:  descr,
+		Status:       "created",
+		ObjectClass:  "fvCtx",
+		DomainName:   "",
+		ResourceName: resourceName,
+	},
+		nil,
 	}
-
-	v := VRF{Attributes: attrs}
 	//Do any additional construction logic here.
-	return &v
+	return t
 }
 
 // AddBridgeDomain adds a BridgeDomain to the VRF BridgeDomain list

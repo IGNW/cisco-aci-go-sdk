@@ -2,6 +2,6 @@ package cage
 
 type Filter struct {
 	ResourceAttributes
-	Subjects []*Subjects
+	Subjects []*Subject
 	Parent   *Tenant
 }

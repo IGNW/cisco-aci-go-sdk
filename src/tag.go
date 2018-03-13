@@ -10,7 +10,7 @@ type Tag struct {
 	Status string
 }
 
-func (Tag) New(tagName string) Tag {
+func NewTag(tagName string) Tag {
 	return Tag{Name: tagName, Status: "created"}
 }
 

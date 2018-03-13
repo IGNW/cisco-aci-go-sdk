@@ -9,10 +9,10 @@ type Contract struct {
 }
 
 /* New creates a new Contract with the appropriate default values */
-func (Contract) New(name string, alias string, descr string) Contract {
+func NewContract(name string, alias string, descr string) Contract {
 	resourceName := fmt.Sprintf("@TODO-%s", name)
 
-	t := Contract{ResourceAttributes{
+	c := Contract{ResourceAttributes{
 		Name:         name,
 		NameAlias:    alias,
 		Description:  descr,
@@ -20,15 +20,18 @@ func (Contract) New(name string, alias string, descr string) Contract {
 		ObjectClass:  "@TODO",
 		DomainName:   fmt.Sprintf("uni/%s", resourceName),
 		ResourceName: resourceName,
-	}}
+	},
+		nil,
+		nil,
+	}
 	//Do any additional construction logic here.
-	return t
+	return c
 }
 
 // AddSubject adds a Subject to the Contract Subject list and sets the Parent prop of the Subject to the Contract it was called from
 func (c *Contract) AddSubject(s *Subject) {
-	s.Parent = &t
-	c.Subjects = append(t.Subjects, s)
+	s.Parent = c
+	c.Subjects = append(c.Subjects, s)
 }
 
 // AddEPG adds a EPG to the Contract EPG list

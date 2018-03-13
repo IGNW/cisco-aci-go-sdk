@@ -12,11 +12,11 @@ type AppProfile struct {
 	Parent *Tenant
 }
 
-/* New creates a new AppProfile with the appropriate default values */
-func (AppProfile) New(name string, alias string, descr string) AppProfile {
+/* NewAppProfile creates a new AppProfile with the appropriate default values */
+func NewAppProfile(name string, alias string, descr string) AppProfile {
 	resourceName := fmt.Sprintf("ap-%s", name)
 
-	bd := AppProfile{ResourceAttributes{
+	ap := AppProfile{ResourceAttributes{
 		Name:         name,
 		NameAlias:    alias,
 		Description:  descr,
@@ -24,9 +24,12 @@ func (AppProfile) New(name string, alias string, descr string) AppProfile {
 		ObjectClass:  "fvApp",
 		DomainName:   fmt.Sprintf("uni/%s", resourceName),
 		ResourceName: resourceName,
-	}}
+	},
+		nil,
+		nil,
+	}
 	//Do any additional construction logic here.
-	return bd
+	return ap
 }
 
 func (bd *AppProfile) CreateAPIPayload() *gabs.Container {
@@ -34,7 +37,7 @@ func (bd *AppProfile) CreateAPIPayload() *gabs.Container {
 }
 
 // AddEPG adds a EPG to the AppProfile EPG list and sets the Parent prop of the EPG to the AppProfile it was called from
-func (bd *AppProfile) AddEPG(e *EPG) {
-	e.Parent = &bd
-	bd.EPGs = append(bd.EPGs, e)
+func (ap *AppProfile) AddEPG(e *EPG) {
+	e.Parent = ap
+	ap.EPGs = append(ap.EPGs, e)
 }
