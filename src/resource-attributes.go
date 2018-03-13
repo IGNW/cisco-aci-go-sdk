@@ -10,6 +10,7 @@ import (
 ACI resources
 */
 type ResourceAttributes struct {
+	client       *Client
 	Name         string
 	ResourceName string
 	DomainName   string
@@ -25,9 +26,9 @@ type ResourceAttributes struct {
 which can be used as an arugment type in a method
 */
 type ResourceInterface interface {
-	SetResourceName() string
-	SetDomainName() string
 	CreateAPIPayload() gabs.Container
+	New(name string, nameAlias string, description string) ResourceInterface
+	Save() interface{}
 }
 
 /** Defines the methods an object must have to be considered to have implemented the ParentInterface,
@@ -94,4 +95,9 @@ func (r *ResourceAttributes) AddTagsToPayload(data *gabs.Container) {
 	for _, tag := range r.Tags {
 		data.ArrayAppend(tag.AsPayLoadFormat(), r.ObjectClass, "children")
 	}
+}
+
+// AddTag adds a tag to a given resource. Returns bool for status, and err if any was encountered
+func (r *ResourceAttributes) AddTag(name string) {
+	r.Tags = append(r.tags, Tag.New(name))
 }
