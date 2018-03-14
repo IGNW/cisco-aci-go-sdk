@@ -29,12 +29,16 @@ func NewContract(name string, alias string, descr string) Contract {
 }
 
 // AddSubject adds a Subject to the Contract Subject list and sets the Parent prop of the Subject to the Contract it was called from
-func (c *Contract) AddSubject(s *Subject) {
-	s.Parent = c
+func (c *Contract) AddSubject(s *Subject) *Contract {
+	s.SetParent(c)
 	c.Subjects = append(c.Subjects, s)
+
+	return c
 }
 
 // AddEPG adds a EPG to the Contract EPG list
-func (c *Contract) AddEPG(e *EPG) {
+func (c *Contract) AddEPG(e *EPG) *Contract {
 	c.EPGs = append(c.EPGs, e)
+
+	return c
 }

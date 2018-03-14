@@ -15,10 +15,11 @@ import (
 
 // Represents a way to connect to the Cisco ACI API
 type Client struct {
-	BaseURL    *url.URL
-	UserAgent  string
-	httpClient *http.Client
-	AuthToken  AuthToken
+	BaseURL          *url.URL
+	UserAgent        string
+	httpClient       *http.Client
+	AuthToken        AuthToken
+	hasAuthenticated bool
 }
 
 func (c *Client) newRequest(method, path string, body *gabs.Container) (*http.Request, error) {
@@ -43,6 +44,7 @@ func (c *Client) newRequest(method, path string, body *gabs.Container) (*http.Re
 }
 
 func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -56,9 +58,7 @@ func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
 
 // Authenticate makes a login request with the provided name and password
 func (c *Client) Authenticate(name string, pwd string) error {
-	//authRoute := "/aaaLogin"
-	//Used to refresh the session cookie
-	//refreshRoute := "/aaaRefresh"
+	// @TODO break this into a few smaller private methods
 	json, err := gabs.ParseJSON([]byte(`{
 		"aaaUser" : {
 			"attributes" : {
@@ -148,4 +148,11 @@ func (c Client) MakeInsecureHTTPClient() *http.Client {
 	}
 	return &http.Client{Transport: tr}
 
+}
+
+func (c *Client) SaveResource(r ResourceAttributes) {
+	json := r.GetAPIPayload()
+	method := "POST"
+	path := fmt.Sprintf("/api/%s-%s.json", r.ObjectClass, r.ResourceName)
+	req, err := c.newRequest(method, path, json)
 }

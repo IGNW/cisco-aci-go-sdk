@@ -24,7 +24,7 @@ func TestAuthenticate(t *testing.T) {
 	fmt.Printf("AUTH: %#v\n", c.AuthToken)
 
 	if c.AuthToken.IsValid() == true {
-		fmt.Printf("TOKEN EXPIRED: %v\n", c.AuthToken.Expiry)
+		fmt.Printf("TOKEN EXPIRES: %v\n", c.AuthToken.Expiry)
 		fmt.Printf("ERROR: %v\n", err)
 		t.Fail()
 	}

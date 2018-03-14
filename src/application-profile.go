@@ -2,8 +2,6 @@ package cage
 
 import (
 	"fmt"
-
-	"github.com/Jeffail/gabs"
 )
 
 type AppProfile struct {
@@ -32,12 +30,10 @@ func NewAppProfile(name string, alias string, descr string) AppProfile {
 	return ap
 }
 
-func (bd *AppProfile) CreateAPIPayload() *gabs.Container {
-	return bd.CreateDefaultPayload()
-}
-
 // AddEPG adds a EPG to the AppProfile EPG list and sets the Parent prop of the EPG to the AppProfile it was called from
-func (ap *AppProfile) AddEPG(e *EPG) {
-	e.Parent = ap
+func (ap *AppProfile) AddEPG(e *EPG) *AppProfile {
+	e.SetParent(ap)
 	ap.EPGs = append(ap.EPGs, e)
+
+	return ap
 }

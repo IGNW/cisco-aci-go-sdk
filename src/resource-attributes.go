@@ -26,9 +26,7 @@ type ResourceAttributes struct {
 which can be used as an arugment type in a method
 */
 type ResourceInterface interface {
-	CreateAPIPayload() *gabs.Container
-	Save()
-	Delete()
+	GetAPIPayload() *gabs.Container
 	GetDomainName() string
 }
 
@@ -36,6 +34,10 @@ func (r *ResourceAttributes) Save()   {}
 func (r *ResourceAttributes) Delete() {}
 func (r *ResourceAttributes) GetDomainName() string {
 	return r.DomainName
+}
+
+func (r *ResourceAttributes) GetAPIPayload() *gabs.Container {
+	return r.CreateDefaultPayload()
 }
 
 func (r *ResourceAttributes) CreateDefaultPayload() *gabs.Container {
@@ -100,6 +102,6 @@ func (r *ResourceAttributes) AddTag(name string) {
 }
 
 func (r *ResourceAttributes) SetParent(parent ResourceInterface) {
-	r.Parent = parent
+	r.SetParent(parent)
 	r.DomainName = fmt.Sprintf("s%/s%", parent.GetDomainName(), r.ResourceName)
 }

@@ -12,7 +12,7 @@ type AuthToken struct {
 }
 
 /** IsNotExpired evalutes the tokens expiry against the current time
-and returns a bool true f
+and returns a bool true if the token has not reach it's expiry
 */
 func (t AuthToken) IsValid() bool {
 	fmt.Printf("IS NOW: %v\n", time.Now().Unix())

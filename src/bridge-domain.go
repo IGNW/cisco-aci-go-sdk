@@ -2,8 +2,6 @@ package cage
 
 import (
 	"fmt"
-
-	"github.com/Jeffail/gabs"
 )
 
 type BridgeDomain struct {
@@ -32,17 +30,17 @@ func NewBridgeDomain(name string, alias string, descr string) BridgeDomain {
 	return bd
 }
 
-func (bd *BridgeDomain) CreateAPIPayload() *gabs.Container {
-	return bd.CreateDefaultPayload()
-}
-
 // AddSubnet adds a Subnet to the BridgeDomain Subnet list and sets the Parent prop of the Subnet to the BridgeDomain it was called from
-func (bd *BridgeDomain) AddSubnet(s *Subnet) {
-	s.Parent = bd
+func (bd *BridgeDomain) AddSubnet(s *Subnet) *BridgeDomain {
+	s.SetParent(bd)
 	bd.Subnets = append(bd.Subnets, s)
+
+	return bd
 }
 
 // AddEPG adds a EPG to the BridgeDomain EPG list
-func (bd *BridgeDomain) AddEPG(e *EPG) {
+func (bd *BridgeDomain) AddEPG(e *EPG) *BridgeDomain {
 	bd.EPGs = append(bd.EPGs, e)
+
+	return bd
 }

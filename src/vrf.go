@@ -10,10 +10,10 @@ type VRF struct {
 }
 
 /* New creates a new Tenant with the appropriate default values */
-func NewVRF(name string, alias string, descr string) Tenant {
-	resourceName := fmt.Sprintf("ctz-%s", name)
+func NewVRF(name string, alias string, descr string) VRF {
+	resourceName := fmt.Sprintf("ctx-%s", name)
 
-	t := VRF{ResourceAttributes{
+	v := VRF{ResourceAttributes{
 		Name:         name,
 		NameAlias:    alias,
 		Description:  descr,
@@ -25,10 +25,12 @@ func NewVRF(name string, alias string, descr string) Tenant {
 		nil,
 	}
 	//Do any additional construction logic here.
-	return t
+	return v
 }
 
 // AddBridgeDomain adds a BridgeDomain to the VRF BridgeDomain list
-func (v *VRF) AddBridgeDomain(bd *BridgeDomain) {
+func (v *VRF) AddBridgeDomain(bd *BridgeDomain) *VRF {
 	v.BridgeDomains = append(v.BridgeDomains, bd)
+
+	return v
 }
