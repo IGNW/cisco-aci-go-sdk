@@ -23,7 +23,7 @@ func NewAuthToken(data *gabs.Container) (*AuthToken, error) {
 
 	if valuePath = "imdata.aaaLogin.attributes.token"; data.ExistsP(valuePath) {
 		token = data.Path(valuePath).Data().([]interface{})[0].(string)
-		fmt.Printf("TOKEN: %v\n", token)
+		//fmt.Printf("TOKEN: %v\n", token)
 	} else {
 		return nil, fmt.Errorf("Token was not found in response,\n was expected at %v", valuePath)
 	}
@@ -48,9 +48,9 @@ func NewAuthToken(data *gabs.Container) (*AuthToken, error) {
 	} else {
 		return nil, fmt.Errorf("refreshTimeOutSeconds was not found in response,\n was expected at %v", valuePath)
 	}
-	fmt.Printf("CREATED AT: %v\n", createdAt)
-	fmt.Printf("LIVE TIL: %#v\n", expiresIn)
-	fmt.Printf("WILL EXP:  %v\n", (createdAt + expiresIn))
+	//fmt.Printf("CREATED AT: %v\n", createdAt)
+	//fmt.Printf("LIVE TIL: %#v\n", expiresIn)
+	//fmt.Printf("WILL EXP:  %v\n", (createdAt + expiresIn))
 
 	at := AuthToken{
 		Token:         token,
@@ -69,8 +69,8 @@ func NewAuthToken(data *gabs.Container) (*AuthToken, error) {
 and returns a bool true if the token has not reach it's expiry
 */
 func (t *AuthToken) IsValid() bool {
-	fmt.Printf("IS NOW: %v\n", time.Now().Unix())
-	fmt.Printf("EXPIRES:  %v\n", t.Expiry.Unix())
+	//fmt.Printf("IS NOW: %v\n", time.Now().Unix())
+	//fmt.Printf("EXPIRES:  %v\n", t.Expiry.Unix())
 
 	if t.IsSet() == true && t.Expiry.Unix() > t.estimateAPICTime() {
 		return true

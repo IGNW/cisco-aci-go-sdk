@@ -20,7 +20,7 @@ type Client struct {
 	BaseURL    *url.URL
 	UserAgent  string
 	httpClient *http.Client
-	AuthToken  AuthToken
+	AuthToken  *AuthToken
 	username   *string
 	password   *string
 	Services
@@ -40,14 +40,14 @@ func InitializeClient(apicURL string, user string, pass string, insecure bool) *
 		username:  &user,
 		password:  &pass,
 		Services: Services{
-			AppProfiles:   GetAppProfileService(),
-			BridgeDomains: GetBridgeDomainService(),
-			Contracts:     GetContractService(),
-			EPGs:          GetEPGService(),
-			Filters:       GetFilterService(),
-			Subjects:      GetSubjectService(),
-			Subnets:       GetSubnetService(),
-			Tenants:       GetTenantService(),
+			// AppProfiles:   GetAppProfileService(clientInstance),
+			// BridgeDomains: GetBridgeDomainService(clientInstance),
+			// Contracts:     GetContractService(clientInstance),
+			// EPGs:          GetEPGService(clientInstance),
+			// Filters:       GetFilterService(clientInstance),
+			// Subjects:      GetSubjectService(clientInstance),
+			// Subnets:       GetSubnetService(clientInstance),
+			Tenants: GetTenantService(clientInstance),
 		},
 	}
 
@@ -61,7 +61,13 @@ func InitializeClient(apicURL string, user string, pass string, insecure bool) *
 
 func GetClient() *Client {
 	if clientInstance == nil {
-		host, name, pass, insecure, _ := LookupClientEnvars()
+		host, name, pass, insecure, err := LookupClientEnvars()
+
+		if err != nil {
+			fmt.Printf("Error with Envvars: %s\n", err)
+			return nil
+		}
+
 		clientInstance = InitializeClient(host, name, pass, insecure)
 	}
 	return clientInstance
@@ -74,11 +80,11 @@ func LookupClientEnvars() (host string, user string, pass string, insecure bool,
 	var errs *multierror.Error
 
 	if host, exists = os.LookupEnv("APIC_HOST"); !exists || host == "" {
-		errs = multierror.Append(errs, fmt.Errorf("Envar 'APIC_URL' is not set"))
+		errs = multierror.Append(errs, fmt.Errorf("Envar 'APIC_HOST' is not set"))
 	}
 
 	if user, exists = os.LookupEnv("APIC_USER"); !exists || user == "" {
-		errs = multierror.Append(errs, fmt.Errorf("Envar 'APIC_HOST' is not set. "))
+		errs = multierror.Append(errs, fmt.Errorf("Envar 'APIC_USER' is not set. "))
 	}
 
 	if pass, exists = os.LookupEnv("APIC_PASS"); !exists || pass == "" {
@@ -146,8 +152,8 @@ func (c *Client) newRequest(method string, path string, body *gabs.Container) (*
 	return req, nil
 }
 
-func (c *Client) newAuthdRequest(method string, path string, body *gabs.Container) (*http.Request, error) {
-	if !c.AuthToken.IsValid() {
+func (c Client) newAuthdRequest(method string, path string, body *gabs.Container) (*http.Request, error) {
+	if c.AuthToken != nil && !c.AuthToken.IsValid() {
 		err := c.Authenticate()
 		if err != nil {
 			return nil, err
@@ -178,9 +184,9 @@ func (c *Client) do(req *http.Request) (*gabs.Container, *http.Response, error) 
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	data, err := gabs.Consume(result)
-	fmt.Printf("JSON %#v\n", result)
-	fmt.Printf("DATA %#v\n", data)
-	fmt.Printf("ERROR %#v\n", err)
+	//fmt.Printf("JSON %#v\n", result)
+	//fmt.Printf("DATA %#v\n", data)
+	//fmt.Printf("ERROR %#v\n", err)
 
 	return data, resp, err
 }
@@ -197,8 +203,8 @@ func (c *Client) Authenticate() error {
 		}
 	}`))
 
-	fmt.Printf("USER: %#v\n", c.username)
-	fmt.Printf("PASS: %#v\n", c.password)
+	//fmt.Printf("USER: %#v\n", c.username)
+	//fmt.Printf("PASS: %#v\n", c.password)
 
 	json.SetP(c.username, "aaaUser.attributes.name")
 	json.SetP(c.password, "aaaUser.attributes.pwd")
@@ -210,16 +216,16 @@ func (c *Client) Authenticate() error {
 		return err
 	}
 
-	data, response, err := c.do(req)
+	data, _, err := c.do(req)
 
-	fmt.Printf("GOT Response: %v\n", response)
+	//fmt.Printf("GOT Response: %v\n", response)
 
 	token, err := NewAuthToken(data)
 	if err != nil {
 		fmt.Printf("%s", err)
 		return nil
 	}
-	fmt.Printf("%s", token.Token)
-	c.AuthToken = *token
+	//fmt.Printf("%s", token.Token)
+	c.AuthToken = token
 	return err
 }

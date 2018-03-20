@@ -26,10 +26,16 @@ which can be used as an arugment type in a method
 */
 type ResourceInterface interface {
 	GetAPIPayload() *gabs.Container
+	AddTag(string)
+	getResourceName() string
 }
 
 func (r ResourceAttributes) GetAPIPayload() *gabs.Container {
 	return r.CreateDefaultPayload()
+}
+
+func (r ResourceAttributes) getResourceName() string {
+	return r.ResourceName
 }
 
 func (r *ResourceAttributes) CreateDefaultPayload() *gabs.Container {
@@ -91,6 +97,6 @@ func (r *ResourceAttributes) AddTag(name string) {
 	r.Tags = append(r.Tags, NewTag(name))
 }
 
-func (r *ResourceAttributes) SetParent(parent interface{}) {
+func (r *ResourceAttributes) SetParent(parent ResourceInterface) {
 	r.Parent = parent
 }

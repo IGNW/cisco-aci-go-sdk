@@ -2,7 +2,7 @@ package main
 
 var tenantServiceInstance *ResourceService
 
-func GetTenantService() *ResourceService {
+func GetTenantService(client *Client) *ResourceService {
 	if tenantServiceInstance == nil {
 		tenantServiceInstance = &ResourceService{
 			ObjectClass: "fvTenant",

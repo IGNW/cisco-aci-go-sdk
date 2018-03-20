@@ -11,4 +11,5 @@ func main() {
 	} else {
 		fmt.Printf("TOKEN is Good: %s", c.AuthToken.Token)
 	}
+
 }

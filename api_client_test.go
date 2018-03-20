@@ -14,9 +14,7 @@ func GetDummyData() *gabs.Container {
 func TestAuthenticate(t *testing.T) {
 	host, name, pass, insecure, err := LookupClientEnvars()
 	if err != nil {
-
 		fmt.Printf("Error with Envvars: %s\n", err)
-		t.FailNow()
 	}
 
 	c := InitializeClient(host, name, pass, insecure)
