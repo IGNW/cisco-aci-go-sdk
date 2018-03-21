@@ -5,28 +5,20 @@ import (
 	"net/http"
 
 	"github.com/Jeffail/gabs"
+	multierror "github.com/hashicorp/go-multierror"
 )
 
 // Services represents a collection of service objects within the client
 // will acess.client().AppProfiles ...
 type Services struct {
-	AppProfiles   *ResourceService
-	BridgeDomains *ResourceService
-	Contracts     *ResourceService
-	EPGs          *ResourceService
-	Filters       *ResourceService
-	Subjects      *ResourceService
-	Subnets       *ResourceService
-	Tenants       *ResourceService
-}
-
-// ServiceInterface defines the interface that each service object will expose
-type ServiceInterface interface {
-	Save(ResourceInterface) error
-	GetAll() ([]*ResourceInterface, error)
-	Get(*map[string]string) ([]*ResourceInterface, error)
-	Delete(domainName string) (data *gabs.Container, response *http.Response, err error)
-	New(name string, nameAlias string, descr string)
+	// AppProfiles   *ResourceService
+	// BridgeDomains *ResourceService
+	// Contracts     *ResourceService
+	// EPGs          *ResourceService
+	// Filters       *ResourceService
+	// Subjects      *ResourceService
+	// Subnets       *ResourceService
+	Tenants *TenantService
 }
 
 type ResourceGenerator func(string, string, string) ResourceInterface
@@ -34,90 +26,184 @@ type ResourceDecoder func(*gabs.Container) (ResourceInterface, error)
 
 type ResourceService struct {
 	ObjectClass string
-	New         ResourceGenerator
-	FromJSON    ResourceDecoder
 }
 
 func (s ResourceService) client() *Client {
 	return GetClient()
 }
-func (s ResourceService) Save(r ResourceInterface) (data *gabs.Container, response *http.Response, err error) {
+func (s ResourceService) Save(r ResourceInterface) (err error) {
 
-	data = r.GetAPIPayload()
+	data := r.GetAPIPayload()
 
 	data.Set("created, modified", s.ObjectClass, "attributes", "status")
 
 	json := r.GetAPIPayload()
 	method := "POST"
-	path := fmt.Sprintf("/api/node/mo/%s-%s.json", s.ObjectClass, r.getResourceName())
+	path := fmt.Sprintf("/api/node/mo/uni/%s.json", r.getResourceName())
 
 	req, err := s.client().newAuthdRequest(method, path, json)
 	if err != nil {
 		fmt.Printf("\nGot Error While Saving, Auth'd Request failed w/ %v", err)
-		return nil, nil, err
+		return err
 	}
 
-	return s.client().do(req)
+	data, response, err := s.client().do(req)
+
+	fmt.Printf("RESP: %#v\n\n", response)
+	fmt.Printf("DATA: %#v\n\n", data)
+
+	if err != nil {
+		return err
+	}
+
+	if err = s.getResponseError(data); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (s ResourceService) Get(params *map[string]string) ([]*ResourceInterface, error) {
+func (s ResourceService) Get(params *map[string]string) (*gabs.Container, error) {
 
-	path := fmt.Sprintf("/api/node/mo/%s", s.ObjectClass)
+	path := fmt.Sprintf("/api/class/%s.json", s.ObjectClass)
+
+	var paramString string
 
 	if params != nil {
-		queryString := "?"
-		paramCount := 0
+		paramString = s.client().convertMapToQueryParams(*params)
+	}
 
-		for key, value := range *params {
-			if key != "" && value != "" {
-				if paramCount > 0 {
-					queryString += "&"
-				}
-				queryString += fmt.Sprintf("%s=%s", key, value)
-				paramCount++
+	if paramString != "" {
+		path = fmt.Sprintf("%s%s", path, paramString)
+	}
+
+	req, err := s.client().newAuthdRequest("GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	data, response, err := s.client().do(req)
+
+	err = s.combineErrors(data, response, err)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+
+}
+
+func (s ResourceService) GetAll() (*gabs.Container, error) {
+	path := fmt.Sprintf("/api//class/%s.json", s.ObjectClass)
+	req, err := s.client().newAuthdRequest("GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	data, response, err := s.client().do(req)
+
+	err = s.combineErrors(data, response, err)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func (s ResourceService) Delete(dn string) error {
+	containerJSON := []byte(fmt.Sprintf(`{
+		"%s": {
+			"attributes": {
 			}
 		}
+	}`, s.ObjectClass))
 
-		if paramCount > 0 {
-			path += queryString
+	data, err := gabs.ParseJSON(containerJSON)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	_, err = data.Set("deleted", s.ObjectClass, "attributes", "status")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	_, err = data.Set(dn, s.ObjectClass, "attributes", "dn")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("Payload: %s", data.String())
+
+	path := fmt.Sprintf("/api/node/mo/%s.json", dn)
+
+	req, err := s.client().newAuthdRequest("POST", path, data)
+
+	if err != nil {
+		return err
+	}
+
+	data, _, err = s.client().do(req)
+
+	if err != nil {
+		return err
+	}
+
+	if err = s.getResponseError(data); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s ResourceService) getGabsValue(data *gabs.Container, valuePath string) string {
+	// Not sure if this is Cisco or Gabs, but wow.
+	// @TODO find a better way to extract values from gabs containers
+	return data.Path(valuePath).Data().([]interface{})[0].(string)
+}
+
+//@TODO rename this, response should always refer to an http.Response for clarity, this is a response body dijested as a gabs Container
+func (s ResourceService) getResponseError(responseData *gabs.Container) error {
+	valpath := "imdata.error.attributes.text"
+
+	if exists := responseData.ExistsP("imdata.error.attributes.text"); exists {
+		err := s.getGabsValue(responseData, valpath)
+
+		if err != "" {
+			return fmt.Errorf(err)
 		}
 	}
 
-	req, err := s.client().newAuthdRequest("GET", path, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	_, _, err = s.client().do(req)
-
-	return nil, nil
+	return nil
 }
 
-func (s ResourceService) GetAll() ([]*ResourceInterface, error) {
-	path := fmt.Sprintf("/api/node/class/%s", s.ObjectClass)
-	req, err := s.client().newAuthdRequest("GET", path, nil)
+func (s ResourceService) combineErrors(data *gabs.Container, response *http.Response, err error) error {
+
+	var errors *multierror.Error
+	var newErr error
+
+	// err will be set if there was an error making the request
 	if err != nil {
-		return nil, err
+		newErr = fmt.Errorf("Got Error Making Call: %s", err)
+		errors = multierror.Append(errors, err)
 	}
 
-	_, _, err = s.client().do(req)
-
-	return nil, nil
-}
-
-func (s ResourceService) Delete(dn string) (data *gabs.Container, response *http.Response, err error) {
-	rawjson := fmt.Sprintf(`{"%s" : { "attributes" : {}}`, s.ObjectClass)
-
-	data, err = gabs.Consume(rawjson)
-
-	data.Set("deleted", s.ObjectClass, "attributes", "status")
-	data.Set(dn, s.ObjectClass, "attributes", "dn")
-
-	req, err := s.client().newAuthdRequest("POST", "/api/node/mo/uni", data)
-	if err != nil {
-		return nil, nil, err
+	// Then we check if the request worked but the API returned an error
+	if response.StatusCode >= 400 {
+		newErr = fmt.Errorf("Got Request Error:\n    StatusCode: %v\n    Status: %s", response.StatusCode, response.Status)
+		errors = multierror.Append(errors, newErr)
 	}
-	data, response, err = s.client().do(req)
 
-	return data, response, err
+	if newErr = s.getResponseError(data); newErr != nil {
+		errors = multierror.Append(errors, fmt.Errorf("Response Body contained an error message:\n   %s", newErr))
+	}
+
+	/**TODO change multi error reporting to be semantically correct,
+	right now a 400 response w/ error message in body shows as 2 errors when it is really just 1
+	See multierror README under "Customizing the formatting of the errors" */
+
+	return errors.ErrorOrNil()
 }

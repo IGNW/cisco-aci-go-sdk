@@ -13,6 +13,7 @@ type ResourceAttributes struct {
 	client       *Client
 	Name         string
 	ResourceName string
+	DomainName   string
 	Status       string
 	Tags         []Tag
 	NameAlias    string
@@ -26,7 +27,6 @@ which can be used as an arugment type in a method
 */
 type ResourceInterface interface {
 	GetAPIPayload() *gabs.Container
-	AddTag(string)
 	getResourceName() string
 }
 
@@ -53,12 +53,6 @@ func (r *ResourceAttributes) CreateEmptyJSONContainer() (*gabs.Container, error)
 	containerJSON := []byte(fmt.Sprintf(`{
 		"%s": {
 			"attributes": {
-				"descr": "",
-				"dn": "",
-				"name": "",
-				"nameAlias": "",
-				"rn": "",
-				"status": ""
 			}
 		}
 	}`, r.ObjectClass))
@@ -72,7 +66,7 @@ func (r *ResourceAttributes) AddDefaultPropsToPayload(data *gabs.Container) {
 	// set value -> key...
 	data.Set(r.Name, r.ObjectClass, "attributes", "name")
 
-	data.Set(r.NameAlias, r.ObjectClass, "attributes", "nameAlias")
+	//data.Set(r.NameAlias, r.ObjectClass, "attributes", "nameAlias")
 
 	data.Set(r.Description, r.ObjectClass, "attributes", "descr")
 
@@ -85,6 +79,8 @@ func (r *ResourceAttributes) AddDefaultPropsToPayload(data *gabs.Container) {
 	and it will save us a lof of 'if exists' checking later
 	*/
 	data.Array(r.ObjectClass, "children")
+
+	//fmt.Printf("Payload:\n%s\n\n", data.String())
 }
 func (r *ResourceAttributes) AddTagsToPayload(data *gabs.Container) {
 	for _, tag := range r.Tags {

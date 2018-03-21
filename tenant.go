@@ -1,11 +1,5 @@
 package main
 
-import (
-	"fmt"
-
-	"github.com/Jeffail/gabs"
-)
-
 type Tenant struct {
 	ResourceAttributes
 	L3NetIdentifier string
@@ -14,33 +8,6 @@ type Tenant struct {
 	AppProfiles     []*AppProfile
 	Contracts       []*Contract
 	Filters         []*Filter
-}
-
-/* New creates a new Tenant with the appropriate default values */
-func NewTenant(name string, alias string, descr string) ResourceInterface {
-	resourceName := fmt.Sprintf("tn-%s", name)
-
-	t := Tenant{ResourceAttributes{
-		Name:         name,
-		NameAlias:    alias,
-		Description:  descr,
-		Status:       "created",
-		ObjectClass:  "fvTenant",
-		ResourceName: resourceName,
-	},
-		"",
-		nil,
-		nil,
-		nil,
-		nil,
-		nil,
-	}
-	//Do any additional construction logic here.
-	return &t
-}
-
-func TenantFromJSON(data *gabs.Container) (ResourceInterface, error) {
-	return nil, nil
 }
 
 // AddVRF adds a VRF to the Tenants VRF list and sets the Parent prop of the VRF to the Tenant it was called from

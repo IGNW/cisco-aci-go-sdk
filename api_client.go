@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"strconv"
@@ -33,6 +34,10 @@ func InitializeClient(apicURL string, user string, pass string, insecure bool) *
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	cookieJar, _ := cookiejar.New(nil)
+	httpClient := http.DefaultClient
+	httpClient.Jar = cookieJar
 
 	clientInstance = &Client{
 		BaseURL:   clientURL,
@@ -125,8 +130,13 @@ func (c *Client) useInsecureHTTPClient() {
 			MaxVersion:               tls.VersionTLS11,
 		},
 	}
+	cookieJar, _ := cookiejar.New(nil)
+
 	c.UserAgent = "go-lang-cage-sdk-insecure"
-	c.httpClient = &http.Client{Transport: tr}
+	c.httpClient = &http.Client{
+		Transport: tr,
+		Jar:       cookieJar,
+	}
 
 }
 
@@ -228,4 +238,27 @@ func (c *Client) Authenticate() error {
 	//fmt.Printf("%s", token.Token)
 	c.AuthToken = token
 	return err
+}
+
+func (c Client) convertMapToQueryParams(params map[string]string) string {
+
+	queryString := "?"
+	paramCount := 0
+
+	for key, value := range params {
+		if key != "" && value != "" {
+			if paramCount > 0 {
+				queryString += "&"
+			}
+
+			key := url.QueryEscape(key)
+			value := url.QueryEscape(value)
+
+			queryString += fmt.Sprintf("%s=%s", key, value)
+
+		}
+	}
+
+	return queryString
+
 }
