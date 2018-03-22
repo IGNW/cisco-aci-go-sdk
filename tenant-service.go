@@ -55,14 +55,21 @@ func (ts TenantService) Save(t *Tenant) error {
 
 }
 
-func (ts TenantService) Get(params *map[string]string) (*[]Tenant, error) {
+func (ts TenantService) Get(domainName string) (*[]Tenant, error) {
 
-	data, err := ts.ResourceService.Get(params)
+	data, err := ts.ResourceService.Get(domainName)
 
-	fmt.Printf("DATA: %v\n\n", data)
-	fmt.Printf("ERR : %s\n\n", err)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	newTenant, error := ts.fromJSON(data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 func (ts TenantService) GetAll() ([]*Tenant, error) {

@@ -63,19 +63,9 @@ func (s ResourceService) Save(r ResourceInterface) (err error) {
 	return nil
 }
 
-func (s ResourceService) Get(params *map[string]string) (*gabs.Container, error) {
+func (s ResourceService) Get(domainName string) (*gabs.Container, error) {
 
-	path := fmt.Sprintf("/api/class/%s.json", s.ObjectClass)
-
-	var paramString string
-
-	if params != nil {
-		paramString = s.client().convertMapToQueryParams(*params)
-	}
-
-	if paramString != "" {
-		path = fmt.Sprintf("%s%s", path, paramString)
-	}
+	path := fmt.Sprintf("api/mo/%s.json", s.ObjectClass)
 
 	req, err := s.client().newAuthdRequest("GET", path, nil)
 	if err != nil {
