@@ -1,4 +1,4 @@
-package main
+package cage
 
 import (
 	"fmt"
@@ -55,7 +55,7 @@ func (ts TenantService) Save(t *Tenant) error {
 
 }
 
-func (ts TenantService) Get(domainName string) (*[]Tenant, error) {
+func (ts TenantService) Get(domainName string) (*Tenant, error) {
 
 	data, err := ts.ResourceService.Get(domainName)
 
@@ -63,13 +63,13 @@ func (ts TenantService) Get(domainName string) (*[]Tenant, error) {
 		return nil, err
 	}
 
-	newTenant, error := ts.fromJSON(data)
+	newTenant, err := ts.fromJSON(data)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return data, nil
+	return newTenant, nil
 }
 
 func (ts TenantService) GetAll() ([]*Tenant, error) {
