@@ -1,4 +1,4 @@
-package main
+package cage
 
 import (
 	"fmt"
@@ -71,11 +71,7 @@ func Test_TenantServiceGet(t *testing.T) {
 		t.Fail()
 	}
 
-	m := map[string]string{
-		"dn": "uni/tn-IGNW",
-	}
-
-	_, err := client.Tenants.Get(&m)
+	_, err := client.Tenants.Get("uni/tn-IGNW")
 
 	if err != nil {
 		t.Logf("ERROR: Error saving the Tenant: %s", err)
