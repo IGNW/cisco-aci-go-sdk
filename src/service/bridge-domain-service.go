@@ -9,6 +9,9 @@ import (
 
 var bridgeDomainServiceInstance *BridgeDomainService
 
+const BD_RESOURCE_NAME_PREFIX = "BD"
+const BD_OBJECT_CLASS = "fvBD"
+
 type BridgeDomainService struct {
 	ResourceService
 }
@@ -16,7 +19,9 @@ type BridgeDomainService struct {
 func GetBridgeDomainService(client *Client) *BridgeDomainService {
 	if bridgeDomainServiceInstance == nil {
 		bridgeDomainServiceInstance = &BridgeDomainService{ResourceService{
-			ObjectClass: "@TODO",
+			ObjectClass:        BD_OBJECT_CLASS,
+			ResourceNamePrefix: BD_RESOURCE_NAME_PREFIX,
+			HasParent:          true,
 		}}
 	}
 	return bridgeDomainServiceInstance
@@ -24,14 +29,13 @@ func GetBridgeDomainService(client *Client) *BridgeDomainService {
 
 /* New creates a new BridgeDomain with the appropriate default values */
 func (bds BridgeDomainService) New(name string, description string) *models.BridgeDomain {
-	resourceName := fmt.Sprintf("@TODO-%s", name)
 
 	b := models.BridgeDomain{models.ResourceAttributes{
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  "@TODO",
-		ResourceName: resourceName,
+		ObjectClass:  BD_OBJECT_CLASS,
+		ResourceName: bds.getResourceName(name),
 	},
 		nil,
 		nil,

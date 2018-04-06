@@ -11,9 +11,10 @@ import (
 
 // Services represents a collection of service objects within the client
 // will acess.client().AppProfiles ...
+
 type Services struct {
 	// AppProfiles   *ResourceService
-	// BridgeDomains *ResourceService
+	BridgeDomains *BridgeDomainService
 	// Contracts     *ResourceService
 	// EPGs          *ResourceService
 	// Filters       *ResourceService
@@ -28,12 +29,22 @@ type ResourceDecoder func(*gabs.Container) (models.ResourceInterface, error)
 type ResourceService struct {
 	ObjectClass        string
 	ResourceNamePrefix string
+	HasParent          bool
 }
 
 func (s ResourceService) client() *Client {
 	return GetClient()
 }
 func (s ResourceService) Save(r models.ResourceInterface) (err error) {
+	var path string
+	var parent models.ResourceInterface
+
+	// perform base validation
+	err = s.validate(r)
+	if err != nil {
+		fmt.Printf("\nGot Error While Validating, Auth'd Request failed w/ %v", err)
+		return err
+	}
 
 	data := r.GetAPIPayload()
 
@@ -42,7 +53,13 @@ func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 	json := r.GetAPIPayload()
 	method := "POST"
 
-	path := fmt.Sprintf("/api/node/mo/uni/%s.json", r.GetResourceName())
+	parent = r.GetParent()
+
+	if parent != nil {
+		path = fmt.Sprintf("/api/node/mo/uni/%s/%s.json", parent.GetResourceName(), r.GetResourceName())
+	} else {
+		path = fmt.Sprintf("/api/node/mo/uni/%s.json", r.GetResourceName())
+	}
 
 	req, err := s.client().newAuthdRequest(method, path, json)
 	if err != nil {
@@ -183,6 +200,21 @@ func (s ResourceService) fromJSONToAttributes(objectClass string, data *gabs.Con
 		ObjectClass:  objectClass,
 	}, nil
 
+}
+
+func (s ResourceService) getResourceName(name string) string {
+	resourceName := fmt.Sprintf("%s-%s", s.ResourceNamePrefix, name)
+	return resourceName
+}
+
+func (s ResourceService) validate(model models.ResourceInterface) error {
+	var err error
+
+	if s.HasParent && model.GetParent() == nil {
+		err = fmt.Errorf("Models of type '%s' require a parent to be set", s.ObjectClass)
+	}
+
+	return err
 }
 
 func (s ResourceService) getGabsValue(data *gabs.Container, valuePath string) string {

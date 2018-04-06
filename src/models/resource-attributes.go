@@ -19,7 +19,7 @@ type ResourceAttributes struct {
 	NameAlias    string
 	Description  string
 	ObjectClass  string
-	Parent       interface{}
+	Parent       ResourceInterface
 }
 
 /** Defines the methods an object must have to be considered to have implemented the ResourceInterface,
@@ -28,6 +28,7 @@ which can be used as an arugment type in a method
 type ResourceInterface interface {
 	GetAPIPayload() *gabs.Container
 	GetResourceName() string
+	GetParent() ResourceInterface
 }
 
 func (r ResourceAttributes) GetAPIPayload() *gabs.Container {
@@ -91,6 +92,10 @@ func (r *ResourceAttributes) AddTagsToPayload(data *gabs.Container) {
 // AddTag adds a tag to a given resource. Returns bool for status, and err if any was encountered
 func (r *ResourceAttributes) AddTag(name string) {
 	r.Tags = append(r.Tags, NewTag(name))
+}
+
+func (r *ResourceAttributes) GetParent() ResourceInterface {
+	return r.Parent
 }
 
 func (r *ResourceAttributes) SetParent(parent ResourceInterface) {

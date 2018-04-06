@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"github.com/Jeffail/gabs"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
@@ -9,8 +8,8 @@ import (
 
 var tenantServiceInstance *TenantService
 
-const RESOURCE_NAME_PREFIX = "tn"
-const OBJECT_CLASS = "fvTenant"
+const TN_RESOURCE_NAME_PREFIX = "tn"
+const TN_OBJECT_CLASS = "fvTenant"
 
 type TenantService struct {
 	ResourceService
@@ -19,8 +18,9 @@ type TenantService struct {
 func GetTenantService(client *Client) *TenantService {
 	if tenantServiceInstance == nil {
 		tenantServiceInstance = &TenantService{ResourceService{
-			ObjectClass:        OBJECT_CLASS,
-			ResourceNamePrefix: RESOURCE_NAME_PREFIX,
+			ObjectClass:        TN_OBJECT_CLASS,
+			ResourceNamePrefix: TN_RESOURCE_NAME_PREFIX,
+			HasParent:          false,
 		}}
 	}
 	return tenantServiceInstance
@@ -28,14 +28,12 @@ func GetTenantService(client *Client) *TenantService {
 
 /* New creates a new Tenant with the appropriate default values */
 func (ts TenantService) New(name string, description string) *models.Tenant {
-	resourceName := fmt.Sprintf("tn-%s", name)
-
 	t := models.Tenant{models.ResourceAttributes{
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  OBJECT_CLASS,
-		ResourceName: resourceName,
+		ObjectClass:  TN_OBJECT_CLASS,
+		ResourceName: ts.getResourceName(name),
 	},
 		"",
 		nil,
@@ -112,39 +110,14 @@ func (ts TenantService) GetAll() ([]*models.Tenant, error) {
 }
 
 func (ts TenantService) fromJSON(data *gabs.Container) (*models.Tenant, error) {
-	/*
-		var errors error
-		var valPath, errMsg, name, desc string
-		var ok bool
-
-		errMsg = "Could not find value '%s' within child of imdata"
-		valPath = ""
-
-		valPath = "fvTenant.attributes.name"
-		if name, ok = data.Path(valPath).Data().(string); !ok {
-			errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
-		}
-
-		valPath = "fvTenant.attributes.descr"
-		if desc, ok = data.Path(valPath).Data().(string); !ok {
-			errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
-		}
-
-		if errors != nil {
-			return nil, errors
-		}
-
-
-
-		newTenant := ts.New(name, desc)
-		return newTenant, nil
-	*/
 
 	resourceAttributes, err := ts.fromJSONToAttributes(ts.ObjectClass, data)
 
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO: process child collections
 
 	return &models.Tenant{
 		resourceAttributes,

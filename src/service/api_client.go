@@ -49,7 +49,7 @@ func InitializeClient(apicURL string, user string, pass string, insecure bool) *
 		httpClient: httpClient,
 		Services: Services{
 			// AppProfiles:   GetAppProfileService(clientInstance),
-			// BridgeDomains: GetBridgeDomainService(clientInstance),
+			BridgeDomains: GetBridgeDomainService(clientInstance),
 			// Contracts:     GetContractService(clientInstance),
 			// EPGs:          GetEPGService(clientInstance),
 			// Filters:       GetFilterService(clientInstance),
