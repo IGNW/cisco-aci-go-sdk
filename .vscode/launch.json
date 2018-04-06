@@ -1,0 +1,26 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "remotePath": "",
+            "port": 2345,
+            "host": "127.0.0.1",
+            "program": "${fileDirname}",
+            "env": {
+                "APIC_HOST" : "https://73.254.132.17:8443",
+                "APIC_USER" : "admin",
+                "APIC_PASS" : "password",
+                "APIC_ALLOW_INSECURE": "true",
+            },
+            "args": [],
+            "showLog": true
+        }
+    ]
+}
