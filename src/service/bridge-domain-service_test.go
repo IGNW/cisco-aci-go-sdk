@@ -53,32 +53,33 @@ func (suite *BridgeDomainServiceTestSuite) TearDownTest() {
 	assert.Nil(err)
 }
 
+//func TestBridgeDomainServiceTestSuite(t *testing.T) {
 func (suite *BridgeDomainServiceTestSuite) TestBridgeDomainServiceGet() {
 	assert := assert.New(suite.T())
-	assert.FailNow("Not Implemented")
-	/*
-		client := GetClient()
+	assert.Fail("Not Implemented")
 
-		assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
+	client := GetClient()
 
-		ten, err := client.Tenants.Get("IGNW")
+	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
 
-		assert.Nil(err)
+	bd, err := client.BridgeDomains.Get("IGNW-BD1")
 
-		if assert.NotNil(ten) {
+	assert.Nil(err)
 
-			assert.Equal("IGNW", ten.Name)
-			assert.Equal("tn-IGNW", ten.ResourceName)
-			assert.Equal("uni/tn-IGNW", ten.DomainName)
-			assert.Empty(ten.Status)
+	if assert.NotNil(bd) {
 
-		}
-	*/
+		assert.Equal("IGNW-BD1", bd.Name)
+		assert.Equal("BD-IGNW-BD1", bd.ResourceName)
+		assert.Equal("uni/tn-IGNW/BD-IGNW-BD1", bd.DomainName)
+		assert.Empty(bd.Status)
+
+	}
+
 }
 
 func (suite *BridgeDomainServiceTestSuite) TestBridgeDomainServiceGetAll() {
 	assert := assert.New(suite.T())
-	assert.FailNow("Not Implemented")
+	assert.Fail("Not Implemented")
 	/*
 		client := GetClient()
 

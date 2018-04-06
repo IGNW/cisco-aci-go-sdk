@@ -35,6 +35,14 @@ curl --insecure -b .cookies -H "Content-Type: application/json" https://73.254.1
 curl --insecure -b .cookies -H "Content-Type: application/json" https://73.254.132.17:8443/api/mo/uni/tn-infra/BD-default.json
 ```
 
+## Fetch One by Name only
+
+```bash
+curl --insecure -b .cookies -H "Content-Type: application/json" 'https://73.254.132.17:8443/api/node/class/fvTenant.json?query-target-filter=eq(fvTenant.name,"IGNW-BDT")'
+curl --insecure -b .cookies -H "Content-Type: application/json" 'https://73.254.132.17:8443/api/node/class/fvBD.json?query-target-filter=eq(fvBD.name,"IGNW-BD1")'
+
+```
+
 # Pretty Printing
 
 Install `jq` for the command line and pipe your `curl` to it, see example below.

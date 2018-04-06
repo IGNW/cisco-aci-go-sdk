@@ -83,9 +83,11 @@ func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 	return nil
 }
 
-func (s ResourceService) Get(name string) (*gabs.Container, error) {
+func (s ResourceService) Get(domainName string) (*gabs.Container, error) {
 
-	path := fmt.Sprintf("api/mo/uni/%s-%s.json", s.ResourceNamePrefix, name)
+	// TODO: refactor to use domain name field
+
+	path := fmt.Sprintf("api/mo/%s.json", domainName)
 
 	req, err := s.client().newAuthdRequest("GET", path, nil)
 	if err != nil {
@@ -102,6 +104,45 @@ func (s ResourceService) Get(name string) (*gabs.Container, error) {
 
 	return data, nil
 
+}
+
+func (s ResourceService) GetById(id string) (*gabs.Container, error) {
+
+	path := fmt.Sprintf("/api/node/class/%s.json?query-target-filter=eq(%s.id,\"%s\")", s.ObjectClass, s.ObjectClass, id)
+
+	req, err := s.client().newAuthdRequest("GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	data, response, err := s.client().do(req)
+
+	err = s.combineErrors(data, response, err)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+func (s ResourceService) GetByName(name string) (*gabs.Container, error) {
+	path := fmt.Sprintf("/api/node/class/%s.json?query-target-filter=eq(%s.name,\"%s\")", s.ObjectClass, s.ObjectClass, name)
+
+	req, err := s.client().newAuthdRequest("GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	data, response, err := s.client().do(req)
+
+	err = s.combineErrors(data, response, err)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 func (s ResourceService) GetAll() (*gabs.Container, error) {

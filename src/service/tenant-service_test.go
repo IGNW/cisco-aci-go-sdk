@@ -51,7 +51,7 @@ func (suite *TenantServiceTestSuite) TestTenantServiceGet() {
 
 	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
 
-	ten, err := client.Tenants.Get("IGNW")
+	ten, err := client.Tenants.Get("uni/tn-IGNW")
 
 	assert.Nil(err)
 
@@ -60,8 +60,41 @@ func (suite *TenantServiceTestSuite) TestTenantServiceGet() {
 		assert.Equal("IGNW", ten.Name)
 		assert.Equal("tn-IGNW", ten.ResourceName)
 		assert.Equal("uni/tn-IGNW", ten.DomainName)
+		assert.Equal("A Testing tenant made by IGNW", ten.Description)
 		assert.Empty(ten.Status)
 
+	}
+}
+
+func (suite *TenantServiceTestSuite) TestTenantServiceGetByName() {
+	assert := assert.New(suite.T())
+
+	client := GetClient()
+
+	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
+
+	tenants, err := client.Tenants.GetByName("IGNW")
+
+	assert.Nil(err)
+
+	if assert.NotEmpty(tenants) {
+
+		assert.Contains(tenants, &models.Tenant{
+			models.ResourceAttributes{
+				Name:         "IGNW",
+				ResourceName: "tn-IGNW",
+				DomainName:   "uni/tn-IGNW",
+				Description:  "A Testing tenant made by IGNW",
+				ObjectClass:  "fvTenant",
+				Status:       "",
+			},
+			"",
+			nil,
+			nil,
+			nil,
+			nil,
+			nil,
+		})
 	}
 }
 

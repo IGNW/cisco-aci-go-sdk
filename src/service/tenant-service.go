@@ -57,15 +57,49 @@ func (ts TenantService) Save(t *models.Tenant) error {
 
 }
 
-func (ts TenantService) Get(name string) (*models.Tenant, error) {
+func (ts TenantService) Get(domainName string) (*models.Tenant, error) {
 
-	data, err := ts.ResourceService.Get(name)
+	data, err := ts.ResourceService.Get(domainName)
 
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: reafacor single item or array behavior of imdata into resource service
+	return ts.fromDataSingle(data)
+}
+
+func (ts TenantService) GetById(id string) (*models.Tenant, error) {
+	data, err := ts.ResourceService.GetById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ts.fromDataSingle(data)
+}
+
+func (ts TenantService) GetByName(name string) ([]*models.Tenant, error) {
+	data, err := ts.ResourceService.GetByName(name)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ts.fromDataArray(data)
+}
+
+func (ts TenantService) GetAll() ([]*models.Tenant, error) {
+
+	data, err := ts.ResourceService.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return ts.fromDataArray(data)
+}
+
+func (ts TenantService) fromDataSingle(data *gabs.Container) (*models.Tenant, error) {
+	// TODO: refactor single item or array behavior of imdata into resource service
 	fvTenants, err := data.S("imdata").Children()
 	if err != nil {
 		return nil, err
@@ -80,13 +114,9 @@ func (ts TenantService) Get(name string) (*models.Tenant, error) {
 	return newTenant, nil
 }
 
-func (ts TenantService) GetAll() ([]*models.Tenant, error) {
+func (ts TenantService) fromDataArray(data *gabs.Container) ([]*models.Tenant, error) {
 	var tenants []*models.Tenant
 	var errors error
-	data, err := ts.ResourceService.GetAll()
-	if err != nil {
-		return nil, err
-	}
 
 	fvTenants, err := data.S("imdata").Children()
 	if err != nil {

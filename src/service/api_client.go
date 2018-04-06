@@ -150,7 +150,13 @@ func (c *Client) useInsecureHTTPClient() {
 }
 
 func (c *Client) newRequest(method string, path string, body *gabs.Container) (*http.Request, error) {
-	rel := &url.URL{Path: path}
+
+	rel, err := url.Parse(path)
+
+	if err != nil {
+		return nil, err
+	}
+
 	u := c.BaseURL.ResolveReference(rel)
 	bodyBytes := []byte(body.String())
 
