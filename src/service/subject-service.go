@@ -75,13 +75,8 @@ func (ss SubjectService) GetAll() ([]*models.Subject, error) {
 		return nil, err
 	}
 
-	fvSubjects, err := data.S("imdata").Children()
-	if err != nil {
-		return nil, err
-	}
-
 	// For each epg in the payload
-	for _, fvSubject := range fvSubjects {
+	for _, fvSubject := range data {
 
 		newSubject, err := ss.fromJSON(fvSubject)
 

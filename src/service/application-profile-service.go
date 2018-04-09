@@ -7,6 +7,10 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
+// TODO: validate these settings are correct
+const AP_RESOURCE_NAME_PREFIX = "AP"
+const AP_OBJECT_CLASS = "fvAP"
+
 var appProfileServiceInstance *AppProfileService
 
 type AppProfileService struct {
@@ -16,7 +20,9 @@ type AppProfileService struct {
 func GetAppProfileService(client *Client) *AppProfileService {
 	if appProfileServiceInstance == nil {
 		appProfileServiceInstance = &AppProfileService{ResourceService{
-			ObjectClass: "@TODO",
+			ObjectClass:        AP_OBJECT_CLASS,
+			ResourceNamePrefix: AP_RESOURCE_NAME_PREFIX,
+			HasParent:          true,
 		}}
 	}
 	return appProfileServiceInstance
@@ -24,14 +30,13 @@ func GetAppProfileService(client *Client) *AppProfileService {
 
 /* New creates a new AppProfile with the appropriate default values */
 func (aps AppProfileService) New(name string, description string) *models.AppProfile {
-	resourceName := fmt.Sprintf("@TODO-%s", name)
 
 	a := models.AppProfile{models.ResourceAttributes{
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  "@TODO",
-		ResourceName: resourceName,
+		ObjectClass:  AP_OBJECT_CLASS,
+		ResourceName: aps.getResourceName(name),
 	},
 		nil,
 		nil,
@@ -76,13 +81,8 @@ func (aps AppProfileService) GetAll() ([]*models.AppProfile, error) {
 		return nil, err
 	}
 
-	fvAppProfiles, err := data.S("imdata").Children()
-	if err != nil {
-		return nil, err
-	}
-
 	// For each appProfile in the payload
-	for _, fvAppProfile := range fvAppProfiles {
+	for _, fvAppProfile := range data {
 
 		newAppProfile, err := aps.fromJSON(fvAppProfile)
 

@@ -3,8 +3,11 @@
 package service
 
 import (
+	"fmt"
+	"github.com/ignw/cisco-aci-go-sdk/src/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"strconv"
 	"testing"
 )
 
@@ -44,25 +47,23 @@ func (suite *BridgeDomainServiceTestSuite) TearDownTest() {
 
 	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
 
-	err := client.Tenants.Delete("uni/tn-IGNW-BD")
+	err := client.BridgeDomains.Delete("uni/tn-IGNW-BDT/BD-IGNW-BD1")
 
 	assert.Nil(err)
 
-	err = client.BridgeDomains.Delete("uni/tn-IGNW-BD/BD-IGNW-BD1")
+	err = client.Tenants.Delete("uni/tn-IGNW-BDT")
 
 	assert.Nil(err)
 }
 
-//func TestBridgeDomainServiceTestSuite(t *testing.T) {
 func (suite *BridgeDomainServiceTestSuite) TestBridgeDomainServiceGet() {
 	assert := assert.New(suite.T())
-	assert.Fail("Not Implemented")
 
 	client := GetClient()
 
 	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
 
-	bd, err := client.BridgeDomains.Get("IGNW-BD1")
+	bd, err := client.BridgeDomains.Get("uni/tn-IGNW-BDT/BD-IGNW-BD1")
 
 	assert.Nil(err)
 
@@ -70,51 +71,77 @@ func (suite *BridgeDomainServiceTestSuite) TestBridgeDomainServiceGet() {
 
 		assert.Equal("IGNW-BD1", bd.Name)
 		assert.Equal("BD-IGNW-BD1", bd.ResourceName)
-		assert.Equal("uni/tn-IGNW/BD-IGNW-BD1", bd.DomainName)
+		assert.Equal("uni/tn-IGNW-BDT/BD-IGNW-BD1", bd.DomainName)
+		assert.Equal("A BD testing tenant made by IGNW", bd.Description)
 		assert.Empty(bd.Status)
 
 	}
 
 }
 
+func (suite *BridgeDomainServiceTestSuite) TestBridgeDomainServiceGetByName() {
+	assert := assert.New(suite.T())
+
+	client := GetClient()
+
+	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
+
+	domains, err := client.BridgeDomains.GetByName("IGNW-BD1")
+
+	assert.Nil(err)
+
+	if assert.NotEmpty(domains) {
+
+		assert.Len(domains, 1)
+
+		assert.Contains(domains, &models.BridgeDomain{
+			models.ResourceAttributes{
+				Name:         "IGNW-BD1",
+				ResourceName: "BD-IGNW-BD1",
+				DomainName:   "uni/tn-IGNW/BD-IGNW-BD1",
+				Description:  "A BD testing tenant made by IGNW",
+				ObjectClass:  "fvBD",
+				Status:       "",
+			},
+			nil,
+			nil,
+		})
+
+	}
+}
+
 func (suite *BridgeDomainServiceTestSuite) TestBridgeDomainServiceGetAll() {
 	assert := assert.New(suite.T())
-	assert.Fail("Not Implemented")
-	/*
-		client := GetClient()
 
-		assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
+	client := GetClient()
 
-		data, err := client.Tenants.GetAll()
+	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
 
-		assert.Nil(err)
+	data, err := client.BridgeDomains.GetAll()
 
-		if assert.NotEmpty(data) {
+	assert.Nil(err)
 
-			assert.Contains(data, &models.Tenant{
-				models.ResourceAttributes{
-					Name:         "IGNW",
-					ResourceName: "tn-IGNW",
-					DomainName:   "uni/tn-IGNW",
-					Description:  "A Testing tenant made by IGNW",
-					ObjectClass:  "fvTenant",
-					Status:       "",
-				},
-				"",
-				nil,
-				nil,
-				nil,
-				nil,
-				nil,
-			})
+	if assert.NotEmpty(data) {
 
-			suite.T().Log(fmt.Printf("Got These Tenants: %#v", data))
+		assert.Contains(data, &models.BridgeDomain{
+			models.ResourceAttributes{
+				Name:         "IGNW-BD1",
+				ResourceName: "BD-IGNW-BD1",
+				DomainName:   "uni/tn-IGNW/BD-IGNW-BD1",
+				Description:  "A BD testing tenant made by IGNW",
+				ObjectClass:  "fvBD",
+				Status:       "",
+			},
+			nil,
+			nil,
+		})
 
-			for key, tenant := range data {
-				suite.T().Log(fmt.Printf("\nTenant  #%s has Name %s\n", strconv.Itoa(key), tenant.Name))
-			}
+		suite.T().Log(fmt.Printf("Got These Bridge Domains: %#v", data))
+
+		for key, bd := range data {
+			suite.T().Log(fmt.Printf("\nBridge Domain  #%s has Name %s\n", strconv.Itoa(key), bd.Name))
 		}
-	*/
+	}
 }
 
 func TestBridgeDomainServiceTestSuite(t *testing.T) {

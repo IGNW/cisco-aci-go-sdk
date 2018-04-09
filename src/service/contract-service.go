@@ -7,6 +7,10 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
+// TODO: validate these settings are correct
+const C_RESOURCE_NAME_PREFIX = "C"
+const C_OBJECT_CLASS = "fvContract"
+
 var contractServiceInstance *ContractService
 
 type ContractService struct {
@@ -16,7 +20,9 @@ type ContractService struct {
 func GetContractService(client *Client) *ContractService {
 	if contractServiceInstance == nil {
 		contractServiceInstance = &ContractService{ResourceService{
-			ObjectClass: "@TODO",
+			ObjectClass:        C_OBJECT_CLASS,
+			ResourceNamePrefix: C_RESOURCE_NAME_PREFIX,
+			HasParent:          true,
 		}}
 	}
 	return contractServiceInstance
@@ -24,14 +30,13 @@ func GetContractService(client *Client) *ContractService {
 
 /* New creates a new Contract with the appropriate default values */
 func (cs ContractService) New(name string, description string) *models.Contract {
-	resourceName := fmt.Sprintf("@TODO-%s", name)
 
 	b := models.Contract{models.ResourceAttributes{
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  "@TODO",
-		ResourceName: resourceName,
+		ObjectClass:  C_OBJECT_CLASS,
+		ResourceName: cs.getResourceName(name),
 	},
 		nil,
 		nil,
@@ -76,13 +81,8 @@ func (cs ContractService) GetAll() ([]*models.Contract, error) {
 		return nil, err
 	}
 
-	fvContracts, err := data.S("imdata").Children()
-	if err != nil {
-		return nil, err
-	}
-
 	// For each contract in the payload
-	for _, fvContract := range fvContracts {
+	for _, fvContract := range data {
 
 		newContract, err := cs.fromJSON(fvContract)
 

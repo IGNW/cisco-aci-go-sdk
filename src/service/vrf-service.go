@@ -7,6 +7,10 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
+// TODO: validate these settings are correct
+const V_RESOURCE_NAME_PREFIX = "V"
+const V_OBJECT_CLASS = "fvVRF"
+
 var vrfServiceInstance *VRFService
 
 type VRFService struct {
@@ -16,7 +20,9 @@ type VRFService struct {
 func GetVRFService(client *Client) *VRFService {
 	if vrfServiceInstance == nil {
 		vrfServiceInstance = &VRFService{ResourceService{
-			ObjectClass: "fvVRF",
+			ObjectClass:        V_OBJECT_CLASS,
+			ResourceNamePrefix: V_RESOURCE_NAME_PREFIX,
+			HasParent:          true,
 		}}
 	}
 	return vrfServiceInstance
@@ -24,14 +30,13 @@ func GetVRFService(client *Client) *VRFService {
 
 /* New creates a new VRF with the appropriate default values */
 func (vs VRFService) New(name string, description string) *models.VRF {
-	resourceName := fmt.Sprintf("tn-%s", name)
 
 	t := models.VRF{models.ResourceAttributes{
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  "fvVRF",
-		ResourceName: resourceName,
+		ObjectClass:  V_OBJECT_CLASS,
+		ResourceName: vs.getResourceName(name),
 	},
 		nil,
 	}
@@ -75,13 +80,8 @@ func (vs VRFService) GetAll() ([]*models.VRF, error) {
 		return nil, err
 	}
 
-	fvVRFs, err := data.S("imdata").Children()
-	if err != nil {
-		return nil, err
-	}
-
 	// For each vrf in the payload
-	for _, fvVRF := range fvVRFs {
+	for _, fvVRF := range data {
 
 		newVRF, err := vs.fromJSON(fvVRF)
 

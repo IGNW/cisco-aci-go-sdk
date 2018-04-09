@@ -65,7 +65,7 @@ func (ts TenantService) Get(domainName string) (*models.Tenant, error) {
 		return nil, err
 	}
 
-	return ts.fromDataSingle(data)
+	return ts.fromJSON(data)
 }
 
 func (ts TenantService) GetById(id string) (*models.Tenant, error) {
@@ -75,7 +75,7 @@ func (ts TenantService) GetById(id string) (*models.Tenant, error) {
 		return nil, err
 	}
 
-	return ts.fromDataSingle(data)
+	return ts.fromJSON(data)
 }
 
 func (ts TenantService) GetByName(name string) ([]*models.Tenant, error) {
@@ -98,35 +98,15 @@ func (ts TenantService) GetAll() ([]*models.Tenant, error) {
 	return ts.fromDataArray(data)
 }
 
-func (ts TenantService) fromDataSingle(data *gabs.Container) (*models.Tenant, error) {
-	// TODO: refactor single item or array behavior of imdata into resource service
-	fvTenants, err := data.S("imdata").Children()
-	if err != nil {
-		return nil, err
-	}
-
-	newTenant, err := ts.fromJSON(fvTenants[0])
-
-	if err != nil {
-		return nil, err
-	}
-
-	return newTenant, nil
-}
-
-func (ts TenantService) fromDataArray(data *gabs.Container) ([]*models.Tenant, error) {
+func (ts TenantService) fromDataArray(data []*gabs.Container) ([]*models.Tenant, error) {
 	var tenants []*models.Tenant
-	var errors error
-
-	fvTenants, err := data.S("imdata").Children()
-	if err != nil {
-		return nil, err
-	}
+	var newTenant *models.Tenant
+	var err, errors error
 
 	// For each tenant in the payload
-	for _, fvTenant := range fvTenants {
+	for _, fvTenant := range data {
 
-		newTenant, err := ts.fromJSON(fvTenant)
+		newTenant, err = ts.fromJSON(fvTenant)
 
 		if err != nil {
 			errors = multierror.Append(errors, err)

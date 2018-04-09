@@ -7,6 +7,10 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
+// TODO: validate these settings are correct
+const F_RESOURCE_NAME_PREFIX = "F"
+const F_OBJECT_CLASS = "fvFilter"
+
 var filterServiceInstance *FilterService
 
 type FilterService struct {
@@ -16,7 +20,9 @@ type FilterService struct {
 func GetFilterService(client *Client) *FilterService {
 	if filterServiceInstance == nil {
 		filterServiceInstance = &FilterService{ResourceService{
-			ObjectClass: "@TODO",
+			ObjectClass:        F_OBJECT_CLASS,
+			ResourceNamePrefix: F_RESOURCE_NAME_PREFIX,
+			HasParent:          true,
 		}}
 	}
 	return filterServiceInstance
@@ -24,16 +30,14 @@ func GetFilterService(client *Client) *FilterService {
 
 /* New creates a new Filter with the appropriate default values */
 func (fs FilterService) New(name string, description string) *models.Filter {
-	resourceName := fmt.Sprintf("@TODO-%s", name)
 
 	b := models.Filter{models.ResourceAttributes{
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  "@TODO",
-		ResourceName: resourceName,
+		ObjectClass:  F_OBJECT_CLASS,
+		ResourceName: fs.getResourceName(name),
 	},
-		nil,
 		nil,
 		nil,
 	}
@@ -77,13 +81,8 @@ func (fs FilterService) GetAll() ([]*models.Filter, error) {
 		return nil, err
 	}
 
-	fvFilters, err := data.S("imdata").Children()
-	if err != nil {
-		return nil, err
-	}
-
 	// For each epg in the payload
-	for _, fvFilter := range fvFilters {
+	for _, fvFilter := range data {
 
 		newFilter, err := fs.fromJSON(fvFilter)
 

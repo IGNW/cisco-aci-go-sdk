@@ -62,17 +62,11 @@ func (bds BridgeDomainService) Get(domainName string) (*models.BridgeDomain, err
 		return nil, err
 	}
 
-	newBridgeDomain, err := bds.fromJSON(data)
+	return bds.fromJSON(data)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return newBridgeDomain, nil
 }
 
 func (bds BridgeDomainService) GetById(id string) (*models.BridgeDomain, error) {
-	var bridgeDomains []*models.BridgeDomain
 
 	data, err := bds.ResourceService.GetById(id)
 
@@ -80,17 +74,7 @@ func (bds BridgeDomainService) GetById(id string) (*models.BridgeDomain, error) 
 		return nil, err
 	}
 
-	bridgeDomains, err = bds.fromDataArray(data)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if len(bridgeDomains) > 0 {
-		return bridgeDomains[0], nil
-	} else {
-		return nil, nil
-	}
+	return bds.fromJSON(data)
 }
 
 func (bds BridgeDomainService) GetByName(name string) ([]*models.BridgeDomain, error) {
@@ -115,17 +99,12 @@ func (bds BridgeDomainService) GetAll() ([]*models.BridgeDomain, error) {
 	return bds.fromDataArray(data)
 }
 
-func (bds BridgeDomainService) fromDataArray(data *gabs.Container) ([]*models.BridgeDomain, error) {
+func (bds BridgeDomainService) fromDataArray(data []*gabs.Container) ([]*models.BridgeDomain, error) {
 	var bridgeDomains []*models.BridgeDomain
-	var errors error
-
-	fvBridgeDomains, err := data.S("imdata").Children()
-	if err != nil {
-		return nil, err
-	}
+	var err, errors error
 
 	// For each bridgeDomain in the payload
-	for _, fvBridgeDomain := range fvBridgeDomains {
+	for _, fvBridgeDomain := range data {
 
 		newBridgeDomain, err := bds.fromJSON(fvBridgeDomain)
 
@@ -141,31 +120,6 @@ func (bds BridgeDomainService) fromDataArray(data *gabs.Container) ([]*models.Br
 }
 
 func (bds BridgeDomainService) fromJSON(data *gabs.Container) (*models.BridgeDomain, error) {
-	/*
-		var errors error
-		var valPath, errMsg, name, desc string
-		var ok bool
-
-		errMsg = "Could not find value '%s' within child of imdata"
-		valPath = ""
-
-		valPath = "@TODO.attributes.name"
-		if name, ok = data.Path(valPath).Data().(string); !ok {
-			errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
-		}
-
-		valPath = "@TODO.attributes.descr"
-		if desc, ok = data.Path(valPath).Data().(string); !ok {
-			errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
-		}
-
-		if errors != nil {
-			return nil, errors
-		}
-
-		newBridgeDomain := bds.New(name, desc)
-		return newBridgeDomain, nil
-	*/
 
 	resourceAttributes, err := bds.fromJSONToAttributes(bds.ObjectClass, data)
 

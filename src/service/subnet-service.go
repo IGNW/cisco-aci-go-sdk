@@ -75,13 +75,8 @@ func (ss SubnetService) GetAll() ([]*models.Subnet, error) {
 		return nil, err
 	}
 
-	fvSubnets, err := data.S("imdata").Children()
-	if err != nil {
-		return nil, err
-	}
-
 	// For each epg in the payload
-	for _, fvSubnet := range fvSubnets {
+	for _, fvSubnet := range data {
 
 		newSubnet, err := ss.fromJSON(fvSubnet)
 

@@ -13,11 +13,12 @@ import (
 // will acess.client().AppProfiles ...
 
 type Services struct {
-	// AppProfiles   *ResourceService
+	AppProfiles   *AppProfileService
 	BridgeDomains *BridgeDomainService
-	// Contracts     *ResourceService
+	Contracts     *ContractService
+	VRFs          *VRFService
 	// EPGs          *ResourceService
-	// Filters       *ResourceService
+	Filters *FilterService
 	// Subjects      *ResourceService
 	// Subnets       *ResourceService
 	Tenants *TenantService
@@ -35,6 +36,7 @@ type ResourceService struct {
 func (s ResourceService) client() *Client {
 	return GetClient()
 }
+
 func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 	var path string
 	var parent models.ResourceInterface
@@ -102,7 +104,7 @@ func (s ResourceService) Get(domainName string) (*gabs.Container, error) {
 		return nil, err
 	}
 
-	return data, nil
+	return s.getChild(data)
 
 }
 
@@ -123,10 +125,10 @@ func (s ResourceService) GetById(id string) (*gabs.Container, error) {
 		return nil, err
 	}
 
-	return data, nil
+	return s.getChild(data)
 }
 
-func (s ResourceService) GetByName(name string) (*gabs.Container, error) {
+func (s ResourceService) GetByName(name string) ([]*gabs.Container, error) {
 	path := fmt.Sprintf("/api/node/class/%s.json?query-target-filter=eq(%s.name,\"%s\")", s.ObjectClass, s.ObjectClass, name)
 
 	req, err := s.client().newAuthdRequest("GET", path, nil)
@@ -142,10 +144,10 @@ func (s ResourceService) GetByName(name string) (*gabs.Container, error) {
 		return nil, err
 	}
 
-	return data, nil
+	return s.getChildren(data)
 }
 
-func (s ResourceService) GetAll() (*gabs.Container, error) {
+func (s ResourceService) GetAll() ([]*gabs.Container, error) {
 	path := fmt.Sprintf("/api/class/%s.json", s.ObjectClass)
 	req, err := s.client().newAuthdRequest("GET", path, nil)
 	if err != nil {
@@ -160,7 +162,7 @@ func (s ResourceService) GetAll() (*gabs.Container, error) {
 		return nil, err
 	}
 
-	return data, nil
+	return s.getChildren(data)
 }
 
 func (s ResourceService) Delete(dn string) error {
@@ -208,6 +210,20 @@ func (s ResourceService) Delete(dn string) error {
 	}
 
 	return nil
+}
+
+func (s ResourceService) getChild(data *gabs.Container) (*gabs.Container, error) {
+	items, err := data.S("imdata").Children()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return items[0], nil
+}
+
+func (s ResourceService) getChildren(data *gabs.Container) ([]*gabs.Container, error) {
+	return data.S("imdata").Children()
 }
 
 func (s ResourceService) fromJSONToAttributes(objectClass string, data *gabs.Container) (models.ResourceAttributes, error) {

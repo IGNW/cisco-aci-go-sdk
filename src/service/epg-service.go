@@ -75,13 +75,8 @@ func (es EPGService) GetAll() ([]*models.EPG, error) {
 		return nil, err
 	}
 
-	fvEPGs, err := data.S("imdata").Children()
-	if err != nil {
-		return nil, err
-	}
-
 	// For each epg in the payload
-	for _, fvEPG := range fvEPGs {
+	for _, fvEPG := range data {
 
 		newEPG, err := es.fromJSON(fvEPG)
 

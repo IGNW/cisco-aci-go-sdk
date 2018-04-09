@@ -11,7 +11,6 @@ type Filter struct {
 	ResourceAttributes
 	Subjects []*Subject
 	Entries  []*Entry
-	Parent   *Tenant
 }
 
 type Entry struct {
@@ -35,7 +34,6 @@ func NewFilter(name string, alias string, descr string) ResourceInterface {
 		ObjectClass:  "@TODO",
 		ResourceName: resourceName,
 	},
-		nil,
 		nil,
 		nil,
 	}
