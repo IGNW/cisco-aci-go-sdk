@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/Jeffail/gabs"
+	log "github.com/golang/glog"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 	"net/http"
@@ -17,11 +18,11 @@ type Services struct {
 	BridgeDomains *BridgeDomainService
 	Contracts     *ContractService
 	VRFs          *VRFService
-	// EPGs          *ResourceService
-	Filters *FilterService
-	// Subjects      *ResourceService
-	// Subnets       *ResourceService
-	Tenants *TenantService
+	EPGs          *EPGService
+	Filters       *FilterService
+	Subjects      *SubjectService
+	Subnets       *SubnetService
+	Tenants       *TenantService
 }
 
 type ResourceGenerator func(string, string, string) models.ResourceInterface
@@ -44,8 +45,7 @@ func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 	// perform base validation
 	err = s.validate(r)
 	if err != nil {
-		fmt.Printf("\nGot Error While Validating, Auth'd Request failed w/ %v", err)
-		return err
+		return fmt.Errorf("\nGot Error While Validating, Auth'd Request failed w/ %v", err)
 	}
 
 	data := r.GetAPIPayload()
@@ -55,6 +55,9 @@ func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 	json := r.GetAPIPayload()
 	method := "POST"
 
+	// TODO: refactor to getResourcePath()
+	// path = s.getResourcePath(r, "")
+
 	parent = r.GetParent()
 
 	if parent != nil {
@@ -63,16 +66,17 @@ func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 		path = fmt.Sprintf("/api/node/mo/uni/%s.json", r.GetResourceName())
 	}
 
+	// END Refactor
+
 	req, err := s.client().newAuthdRequest(method, path, json)
 	if err != nil {
-		fmt.Printf("\nGot Error While Saving, Auth'd Request failed w/ %v", err)
-		return err
+		return fmt.Errorf("\nGot Error While Saving, Auth'd Request failed w/ %v", err)
 	}
 
 	data, response, err := s.client().do(req)
 
-	fmt.Printf("RESP: %#v\n\n", response)
-	fmt.Printf("DATA: %#v\n\n", data)
+	log.Infof("RESP: %#v\n\n", response)
+	log.Infof("DATA: %#v\n\n", data)
 
 	if err != nil {
 		return err
@@ -148,7 +152,7 @@ func (s ResourceService) GetByName(name string) ([]*gabs.Container, error) {
 }
 
 func (s ResourceService) GetAll() ([]*gabs.Container, error) {
-	path := fmt.Sprintf("/api/class/%s.json", s.ObjectClass)
+	path := fmt.Sprintf("/api/node/class/%s.json", s.ObjectClass)
 	req, err := s.client().newAuthdRequest("GET", path, nil)
 	if err != nil {
 		return nil, err
@@ -165,7 +169,7 @@ func (s ResourceService) GetAll() ([]*gabs.Container, error) {
 	return s.getChildren(data)
 }
 
-func (s ResourceService) Delete(dn string) error {
+func (s ResourceService) Delete(domainName string) error {
 	containerJSON := []byte(fmt.Sprintf(`{
 		"%s": {
 			"attributes": {
@@ -176,27 +180,27 @@ func (s ResourceService) Delete(dn string) error {
 	data, err := gabs.ParseJSON(containerJSON)
 
 	if err != nil {
-		fmt.Println(err)
+		return fmt.Errorf("Error parsing JSON.\n%#v", err)
 	}
 
 	_, err = data.Set("deleted", s.ObjectClass, "attributes", "status")
 	if err != nil {
-		fmt.Println(err)
+		return fmt.Errorf("Error setting deleted flag on ACI model.\n%#v", err)
 	}
 
-	_, err = data.Set(dn, s.ObjectClass, "attributes", "dn")
+	_, err = data.Set(domainName, s.ObjectClass, "attributes", "dn")
 	if err != nil {
-		fmt.Println(err)
+		return fmt.Errorf("Error setting attributes on ACI model.\n%#v", err)
 	}
 
-	fmt.Printf("Payload: %s", data.String())
+	log.Infof("Payload: %s", data.String())
 
-	path := fmt.Sprintf("/api/node/mo/%s.json", dn)
+	path := fmt.Sprintf("/api/node/mo/%s.json", domainName)
 
 	req, err := s.client().newAuthdRequest("POST", path, data)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Error with delete request to ACI: POST %s\n%s", path, err)
 	}
 
 	data, _, err = s.client().do(req)
@@ -248,12 +252,14 @@ func (s ResourceService) fromJSONToAttributes(objectClass string, data *gabs.Con
 		return models.ResourceAttributes{}, errors
 	}
 
+	paths := strings.Split(attributes["dn"], "/")
+
 	return models.ResourceAttributes{
 		DomainName:   attributes["dn"],
 		Name:         attributes["name"],
 		Description:  attributes["descr"],
 		Status:       attributes["status"],
-		ResourceName: strings.Split(attributes["dn"], "/")[1],
+		ResourceName: paths[len(paths)-1],
 		ObjectClass:  objectClass,
 	}, nil
 
@@ -262,6 +268,25 @@ func (s ResourceService) fromJSONToAttributes(objectClass string, data *gabs.Con
 func (s ResourceService) getResourceName(name string) string {
 	resourceName := fmt.Sprintf("%s-%s", s.ResourceNamePrefix, name)
 	return resourceName
+}
+
+func (s ResourceService) getResourcePath(model models.ResourceInterface, path string) string {
+	const basePath = "/api/node/mo/uni/"
+	var parent models.ResourceInterface
+
+	if path == "" {
+		path = basePath
+	}
+
+	parent = model.GetParent()
+
+	if parent == nil {
+		path += model.GetResourceName() + ".json"
+		return path
+	} else {
+		path += model.GetResourceName() + "/"
+		return s.getResourcePath(parent, path)
+	}
 }
 
 func (s ResourceService) validate(model models.ResourceInterface) error {
@@ -280,7 +305,7 @@ func (s ResourceService) getGabsValue(data *gabs.Container, valuePath string) st
 	return data.Path(valuePath).Data().([]interface{})[0].(string)
 }
 
-//@TODO rename this, response should always refer to an http.Response for clarity, this is a response body dijested as a gabs Container
+//@TODO rename this, response should always refer to an http.Response for clarity, this is a response body digested as a gabs Container
 func (s ResourceService) getResponseError(responseData *gabs.Container) error {
 	valpath := "imdata.error.attributes.text"
 

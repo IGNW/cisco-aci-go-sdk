@@ -3,10 +3,9 @@
 package service
 
 import (
-	"fmt"
-	"testing"
-
 	"github.com/Jeffail/gabs"
+	log "github.com/golang/glog"
+	"testing"
 )
 
 func GetDummyData() *gabs.Container {
@@ -16,7 +15,8 @@ func GetDummyData() *gabs.Container {
 func TestAuthenticate(t *testing.T) {
 	host, name, pass, insecure, err := LookupClientEnvars()
 	if err != nil {
-		fmt.Printf("Error with Envvars: %s\n", err)
+		t.Logf("Error with Envvars: %s\n", err)
+		t.FailNow()
 	}
 
 	c := InitializeClient(host, name, pass, insecure)
@@ -28,6 +28,6 @@ func TestAuthenticate(t *testing.T) {
 		t.Logf("\nTOKEN EXPIRES: %v\n", c.AuthToken.Expiry)
 		t.Fail()
 	} else {
-		fmt.Printf("\nTOKEN is Good: %s", c.AuthToken.Token)
+		log.Infof("\nTOKEN is Good: %s", c.AuthToken.Token)
 	}
 }

@@ -1,15 +1,13 @@
 package service
 
 import (
-	"fmt"
 	"github.com/Jeffail/gabs"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-// TODO: validate these settings are correct
-const C_RESOURCE_NAME_PREFIX = "C"
-const C_OBJECT_CLASS = "fvContract"
+const C_RESOURCE_NAME_PREFIX = "brc"
+const C_OBJECT_CLASS = "vzBrCP"
 
 var contractServiceInstance *ContractService
 
@@ -73,13 +71,29 @@ func (cs ContractService) Get(domainName string) (*models.Contract, error) {
 	return newContract, nil
 }
 
+func (cs ContractService) GetByName(name string) ([]*models.Contract, error) {
+
+	data, err := cs.ResourceService.GetByName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return cs.fromDataArray(data)
+}
+
 func (cs ContractService) GetAll() ([]*models.Contract, error) {
-	var contracts []*models.Contract
-	var errors error
+
 	data, err := cs.ResourceService.GetAll()
 	if err != nil {
 		return nil, err
 	}
+
+	return cs.fromDataArray(data)
+}
+
+func (cs ContractService) fromDataArray(data []*gabs.Container) ([]*models.Contract, error) {
+	var contracts []*models.Contract
+	var err, errors error
 
 	// For each contract in the payload
 	for _, fvContract := range data {
@@ -97,28 +111,19 @@ func (cs ContractService) GetAll() ([]*models.Contract, error) {
 	return contracts, err
 }
 
+
 func (cs ContractService) fromJSON(data *gabs.Container) (*models.Contract, error) {
-	var errors error
-	var valPath, errMsg, name, desc string
-	var ok bool
+	resourceAttributes, err := cs.fromJSONToAttributes(cs.ObjectClass, data)
 
-	errMsg = "Could not find value '%s' within child of imdata"
-	valPath = ""
-
-	valPath = "@TODO.attributes.name"
-	if name, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
+	if err != nil {
+		return nil, err
 	}
 
-	valPath = "@TODO.attributes.descr"
-	if desc, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
-	}
+	// TODO: process child collections
 
-	if errors != nil {
-		return nil, errors
-	}
-
-	newContract := cs.New(name, desc)
-	return newContract, nil
+	return &models.Contract{
+		resourceAttributes,
+		nil,
+		nil,
+	}, nil
 }

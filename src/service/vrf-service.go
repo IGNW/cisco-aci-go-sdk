@@ -1,15 +1,13 @@
 package service
 
 import (
-	"fmt"
 	"github.com/Jeffail/gabs"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-// TODO: validate these settings are correct
-const V_RESOURCE_NAME_PREFIX = "V"
-const V_OBJECT_CLASS = "fvVRF"
+const V_RESOURCE_NAME_PREFIX = "ctx"
+const V_OBJECT_CLASS = "fvCtx"
 
 var vrfServiceInstance *VRFService
 
@@ -72,13 +70,29 @@ func (vs VRFService) Get(domainName string) (*models.VRF, error) {
 	return newVRF, nil
 }
 
+func (vs VRFService) GetByName(name string) ([]*models.VRF, error) {
+
+	data, err := vs.ResourceService.GetByName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return vs.fromDataArray(data)
+}
+
 func (vs VRFService) GetAll() ([]*models.VRF, error) {
-	var vrfs []*models.VRF
-	var errors error
+
 	data, err := vs.ResourceService.GetAll()
 	if err != nil {
 		return nil, err
 	}
+
+	return vs.fromDataArray(data)
+}
+
+func (vs VRFService) fromDataArray(data []*gabs.Container) ([]*models.VRF, error) {
+	var vrfs []*models.VRF
+	var err, errors error
 
 	// For each vrf in the payload
 	for _, fvVRF := range data {
@@ -97,27 +111,16 @@ func (vs VRFService) GetAll() ([]*models.VRF, error) {
 }
 
 func (vs VRFService) fromJSON(data *gabs.Container) (*models.VRF, error) {
-	var errors error
-	var valPath, errMsg, name, desc string
-	var ok bool
+	resourceAttributes, err := vs.fromJSONToAttributes(vs.ObjectClass, data)
 
-	errMsg = "Could not find value '%s' within child of imdata"
-	valPath = ""
-
-	valPath = "fvVRF.attributes.name"
-	if name, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
+	if err != nil {
+		return nil, err
 	}
 
-	valPath = "fvVRF.attributes.descr"
-	if desc, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
-	}
+	// TODO: process child collections
 
-	if errors != nil {
-		return nil, errors
-	}
-
-	newVRF := vs.New(name, desc)
-	return newVRF, nil
+	return &models.VRF{
+		resourceAttributes,
+		nil,
+	}, nil
 }

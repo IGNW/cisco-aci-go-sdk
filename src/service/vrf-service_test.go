@@ -3,11 +3,9 @@
 package service
 
 import (
-	"fmt"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"strconv"
 	"testing"
 )
 
@@ -47,7 +45,7 @@ func (suite *VRFServiceTestSuite) TearDownTest() {
 
 	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
 
-	err := client.VRFs.Delete("uni/tn-IGNW-VT/V-IGNW-V1")
+	err := client.VRFs.Delete("uni/tn-IGNW-VT/ctx-IGNW-V1")
 
 	assert.Nil(err)
 
@@ -63,15 +61,15 @@ func (suite *VRFServiceTestSuite) TestVRFServiceGet() {
 
 	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
 
-	v, err := client.VRFs.Get("uni/tn-IGNW-VT/V-IGNW-V1")
+	v, err := client.VRFs.Get("uni/tn-IGNW-VT/ctx-IGNW-V1")
 
 	assert.Nil(err)
 
 	if assert.NotNil(v) {
 
 		assert.Equal("IGNW-V1", v.Name)
-		assert.Equal("V-IGNW-V1", v.ResourceName)
-		assert.Equal("uni/tn-IGNW-VT/V-IGNW-V1", v.DomainName)
+		assert.Equal("ctx-IGNW-V1", v.ResourceName)
+		assert.Equal("uni/tn-IGNW-VT/ctx-IGNW-V1", v.DomainName)
 		assert.Equal("A testing VRF made by IGNW", v.Description)
 		assert.Empty(v.Status)
 
@@ -97,10 +95,10 @@ func (suite *VRFServiceTestSuite) TestVRFServiceGetByName() {
 		assert.Contains(VRFs, &models.VRF{
 			models.ResourceAttributes{
 				Name:         "IGNW-V1",
-				ResourceName: "V-IGNW-V1",
+				ResourceName: "ctx-IGNW-V1",
 				DomainName:   "uni/tn-IGNW-VT/C-IGNW-V1",
 				Description:  "A testing VRF made by IGNW",
-				ObjectClass:  "fvVRF",
+				ObjectClass:  "fvCtx",
 				Status:       "",
 			},
 			nil,
@@ -124,21 +122,16 @@ func (suite *VRFServiceTestSuite) TestVRFServiceGetAll() {
 		assert.Contains(data, &models.AppProfile{
 			models.ResourceAttributes{
 				Name:         "IGNW-V1",
-				ResourceName: "V-IGNW-V1",
-				DomainName:   "uni/tn-IGNW-VT/V-IGNW-V1",
+				ResourceName: "ctx-IGNW-V1",
+				DomainName:   "uni/tn-IGNW-VT/ctx-IGNW-V1",
 				Description:  "A testing VRF made by IGNW",
-				ObjectClass:  "fvVRF",
+				ObjectClass:  "fvCtx",
 				Status:       "",
 			},
 			nil,
 			nil,
 		})
 
-		suite.T().Log(fmt.Printf("Got These VRFs: %#v", data))
-
-		for key, v := range data {
-			suite.T().Log(fmt.Printf("\nVRF #%s has Name %s\n", strconv.Itoa(key), v.Name))
-		}
 	}
 }
 

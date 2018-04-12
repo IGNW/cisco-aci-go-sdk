@@ -1,15 +1,13 @@
 package service
 
 import (
-	"fmt"
 	"github.com/Jeffail/gabs"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-// TODO: validate these settings are correct
-const F_RESOURCE_NAME_PREFIX = "F"
-const F_OBJECT_CLASS = "fvFilter"
+const F_RESOURCE_NAME_PREFIX = "rsbdFloodTo"
+const F_OBJECT_CLASS = "fvRsBdFloodTo"
 
 var filterServiceInstance *FilterService
 
@@ -73,13 +71,29 @@ func (fs FilterService) Get(domainName string) (*models.Filter, error) {
 	return newFilter, nil
 }
 
+func (fs FilterService) GetByName(name string) ([]*models.Filter, error) {
+
+	data, err := fs.ResourceService.GetByName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return fs.fromDataArray(data)
+}
+
 func (fs FilterService) GetAll() ([]*models.Filter, error) {
-	var epgs []*models.Filter
-	var errors error
+
 	data, err := fs.ResourceService.GetAll()
 	if err != nil {
 		return nil, err
 	}
+
+	return fs.fromDataArray(data)
+}
+
+func (fs FilterService) fromDataArray(data []*gabs.Container) ([]*models.Filter, error) {
+	var epgs []*models.Filter
+	var err, errors error
 
 	// For each epg in the payload
 	for _, fvFilter := range data {
@@ -98,27 +112,17 @@ func (fs FilterService) GetAll() ([]*models.Filter, error) {
 }
 
 func (fs FilterService) fromJSON(data *gabs.Container) (*models.Filter, error) {
-	var errors error
-	var valPath, errMsg, name, desc string
-	var ok bool
+	resourceAttributes, err := fs.fromJSONToAttributes(fs.ObjectClass, data)
 
-	errMsg = "Could not find value '%s' within child of imdata"
-	valPath = ""
-
-	valPath = "@TODO.attributfs.name"
-	if name, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
+	if err != nil {
+		return nil, err
 	}
 
-	valPath = "@TODO.attributfs.descr"
-	if desc, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
-	}
+	// TODO: process child collections
 
-	if errors != nil {
-		return nil, errors
-	}
-
-	newFilter := fs.New(name, desc)
-	return newFilter, nil
+	return &models.Filter{
+		resourceAttributes,
+		nil,
+		nil,
+	}, nil
 }

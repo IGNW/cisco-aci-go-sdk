@@ -5,17 +5,15 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"log"
+	"github.com/Jeffail/gabs"
+	log "github.com/golang/glog"
+	multierror "github.com/hashicorp/go-multierror"
+	"github.com/ignw/cisco-aci-go-sdk/src/models"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"strconv"
-
-	"github.com/Jeffail/gabs"
-	multierror "github.com/hashicorp/go-multierror"
-
-	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
 // Represents a way to connect to the Cisco ACI API
@@ -52,11 +50,11 @@ func InitializeClient(apicURL string, user string, pass string, insecure bool) *
 			BridgeDomains: GetBridgeDomainService(clientInstance),
 			Contracts:     GetContractService(clientInstance),
 			VRFs:          GetVRFService(clientInstance),
-			// EPGs:          GetEPGService(clientInstance),
-			Filters: GetFilterService(clientInstance),
-			// Subjects:      GetSubjectService(clientInstance),
-			// Subnets:       GetSubnetService(clientInstance),
-			Tenants: GetTenantService(clientInstance),
+			EPGs:          GetEPGService(clientInstance),
+			Filters:       GetFilterService(clientInstance),
+			Subjects:      GetSubjectService(clientInstance),
+			Subnets:       GetSubnetService(clientInstance),
+			Tenants:       GetTenantService(clientInstance),
 		},
 	}
 
@@ -79,7 +77,7 @@ func GetClient() *Client {
 		host, name, pass, insecure, err := LookupClientEnvars()
 
 		if err != nil {
-			fmt.Printf("Error with Envvars: %s\n", err)
+			log.Fatal("Error with Envvars: %s\n", err)
 			return nil
 		}
 
@@ -200,19 +198,21 @@ func (c *Client) do(req *http.Request) (*gabs.Container, *http.Response, error) 
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		fmt.Printf("%s", err)
 		return nil, nil, err
 	}
 	defer resp.Body.Close()
 
 	var result interface{}
 
+	fmt.Printf("\nHTTP Request: %s %s", req.Method, req.URL.String())
+	fmt.Printf("\nHTTP Response: %d / %s", resp.StatusCode, resp.Status)
+
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	data, err := gabs.Consume(result)
-	//fmt.Printf("JSON %#v\n", result)
-	//fmt.Printf("DATA %#v\n", data)
-	//fmt.Printf("ERROR %#v\n", err)
+	log.Infof("Client.do-> JSON %#v\n", result)
+	log.Infof("Client.do-> DATA %#v\n", data)
+	log.Infof("Client.do-> ERROR %#v\n", err)
 
 	return data, resp, err
 }
@@ -242,16 +242,15 @@ func (c *Client) Authenticate() error {
 		return err
 	}
 
-	data, _, err := c.do(req)
+	data, response, err := c.do(req)
 
-	//fmt.Printf("GOT Response: %v\n", response)
+	log.Infof("Client.Authenticate-> RESPONSE %v", response)
 
 	token, err := models.NewAuthToken(data)
 	if err != nil {
-		fmt.Printf("%s", err)
 		return err
 	}
-	//fmt.Printf("%s", token.Token)
+	log.Infof("Client.Authenticate-> %s", token.Token)
 	c.AuthToken = token
 
 	return nil

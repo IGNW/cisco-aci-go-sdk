@@ -1,15 +1,14 @@
 package service
 
 import (
-	"fmt"
 	"github.com/Jeffail/gabs"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
 // TODO: validate these settings are correct
-const AP_RESOURCE_NAME_PREFIX = "AP"
-const AP_OBJECT_CLASS = "fvAP"
+const AP_RESOURCE_NAME_PREFIX = "ap"
+const AP_OBJECT_CLASS = "fvAp"
 
 var appProfileServiceInstance *AppProfileService
 
@@ -73,13 +72,41 @@ func (aps AppProfileService) Get(domainName string) (*models.AppProfile, error) 
 	return newAppProfile, nil
 }
 
+func (aps AppProfileService) GetById(id string) (*models.AppProfile, error) {
+
+	data, err := aps.ResourceService.GetById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return aps.fromJSON(data)
+}
+
+func (aps AppProfileService) GetByName(name string) ([]*models.AppProfile, error) {
+
+	data, err := aps.ResourceService.GetByName(name)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return aps.fromDataArray(data)
+}
+
 func (aps AppProfileService) GetAll() ([]*models.AppProfile, error) {
-	var appProfiles []*models.AppProfile
-	var errors error
+
 	data, err := aps.ResourceService.GetAll()
 	if err != nil {
 		return nil, err
 	}
+
+	return aps.fromDataArray(data)
+}
+
+func (aps AppProfileService) fromDataArray(data []*gabs.Container) ([]*models.AppProfile, error) {
+	var appProfiles []*models.AppProfile
+	var err, errors error
 
 	// For each appProfile in the payload
 	for _, fvAppProfile := range data {
@@ -98,27 +125,17 @@ func (aps AppProfileService) GetAll() ([]*models.AppProfile, error) {
 }
 
 func (aps AppProfileService) fromJSON(data *gabs.Container) (*models.AppProfile, error) {
-	var errors error
-	var valPath, errMsg, name, desc string
-	var ok bool
+	resourceAttributes, err := aps.fromJSONToAttributes(aps.ObjectClass, data)
 
-	errMsg = "Could not find value '%s' within child of imdata"
-	valPath = ""
-
-	valPath = "@TODO.attributes.name"
-	if name, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
+	if err != nil {
+		return nil, err
 	}
 
-	valPath = "@TODO.attributes.descr"
-	if desc, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
-	}
+	// TODO: process child collections
 
-	if errors != nil {
-		return nil, errors
-	}
-
-	newAppProfile := aps.New(name, desc)
-	return newAppProfile, nil
+	return &models.AppProfile{
+		resourceAttributes,
+		nil,
+		nil,
+	}, nil
 }

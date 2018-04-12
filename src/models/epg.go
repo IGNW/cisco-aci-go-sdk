@@ -10,7 +10,6 @@ import (
 
 type EPG struct {
 	ResourceAttributes
-	Parent *AppProfile
 }
 
 /* New creates a new EPG with the appropriate default values */
@@ -24,9 +23,7 @@ func NewEPG(name string, alias string, descr string) ResourceInterface {
 		Status:       "created",
 		ObjectClass:  "fvAEPg",
 		ResourceName: resourceName,
-	},
-		nil,
-	}
+	}}
 
 	//Do any additional construction logic specific to the EPG here
 	return &e

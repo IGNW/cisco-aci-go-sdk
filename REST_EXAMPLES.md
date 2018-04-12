@@ -26,7 +26,7 @@ curl --insecure -b .cookies -H "Content-Type: application/json" https://73.254.1
 ## Fetch All
 
 ```bash
-curl --insecure -b .cookies -H "Content-Type: application/json" https://73.254.132.17:8443/api/class/fvBD.json
+curl --insecure -b .cookies -H "Content-Type: application/json" https://73.254.132.17:8443/api/class/fvTenant.json
 ```
 
 ## Fetch One

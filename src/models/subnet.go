@@ -8,7 +8,6 @@ import (
 
 type Subnet struct {
 	ResourceAttributes
-	Parent *BridgeDomain
 }
 
 func NewSubnet(name string, alias string, descr string) ResourceInterface {
@@ -21,9 +20,8 @@ func NewSubnet(name string, alias string, descr string) ResourceInterface {
 		Status:       "created",
 		ObjectClass:  "fvSubnet",
 		ResourceName: resourceName,
-	},
-		nil,
-	}
+	}}
+
 	//Do any additional construction logic here.
 	return &s
 }

@@ -1,11 +1,14 @@
 package service
 
 import (
-	"fmt"
 	"github.com/Jeffail/gabs"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
+
+// TODO: validate these settings are correct
+const E_RESOURCE_NAME_PREFIX = "epg"
+const E_OBJECT_CLASS = "fvAEPg"
 
 var epgServiceInstance *EPGService
 
@@ -16,7 +19,9 @@ type EPGService struct {
 func GetEPGService(client *Client) *EPGService {
 	if epgServiceInstance == nil {
 		epgServiceInstance = &EPGService{ResourceService{
-			ObjectClass: "@TODO",
+			ObjectClass:        E_OBJECT_CLASS,
+			ResourceNamePrefix: E_RESOURCE_NAME_PREFIX,
+			HasParent:          true,
 		}}
 	}
 	return epgServiceInstance
@@ -24,17 +29,15 @@ func GetEPGService(client *Client) *EPGService {
 
 /* New creates a new EPG  with the appropriate default values */
 func (es EPGService) New(name string, description string) *models.EPG {
-	resourceName := fmt.Sprintf("@TODO-%s", name)
 
 	e := models.EPG{models.ResourceAttributes{
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  "@TODO",
-		ResourceName: resourceName,
-	},
-		nil,
-	}
+		ObjectClass:  E_OBJECT_CLASS,
+		ResourceName: es.getResourceName(name),
+	}}
+
 	//Do any additional construction logic here.
 	return &e
 }
@@ -67,13 +70,29 @@ func (es EPGService) Get(domainName string) (*models.EPG, error) {
 	return newEPG, nil
 }
 
+func (es EPGService) GetByName(name string) ([]*models.EPG, error) {
+
+	data, err := es.ResourceService.GetByName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return es.fromDataArray(data)
+}
+
 func (es EPGService) GetAll() ([]*models.EPG, error) {
-	var epgs []*models.EPG
-	var errors error
+
 	data, err := es.ResourceService.GetAll()
 	if err != nil {
 		return nil, err
 	}
+
+	return es.fromDataArray(data)
+}
+
+func (es EPGService) fromDataArray(data []*gabs.Container) ([]*models.EPG, error) {
+	var epgs []*models.EPG
+	var err, errors error
 
 	// For each epg in the payload
 	for _, fvEPG := range data {
@@ -92,27 +111,15 @@ func (es EPGService) GetAll() ([]*models.EPG, error) {
 }
 
 func (es EPGService) fromJSON(data *gabs.Container) (*models.EPG, error) {
-	var errors error
-	var valPath, errMsg, name, desc string
-	var ok bool
+	resourceAttributes, err := es.fromJSONToAttributes(es.ObjectClass, data)
 
-	errMsg = "Could not find value '%s' within child of imdata"
-	valPath = ""
-
-	valPath = "@TODO.attributes.name"
-	if name, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
+	if err != nil {
+		return nil, err
 	}
 
-	valPath = "@TODO.attributes.descr"
-	if desc, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
-	}
+	// TODO: process child collections
 
-	if errors != nil {
-		return nil, errors
-	}
-
-	newEPG := es.New(name, desc)
-	return newEPG, nil
+	return &models.EPG{
+		resourceAttributes,
+	}, nil
 }

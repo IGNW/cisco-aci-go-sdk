@@ -3,39 +3,38 @@
 package service
 
 import (
-	"fmt"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"strconv"
 	"testing"
 )
 
 type ApplicationProfileServiceTestSuite struct {
 	suite.Suite
+	client *Client
 }
 
 func (suite *ApplicationProfileServiceTestSuite) SetupTest() {
 
 	assert := assert.New(suite.T())
 
-	client := GetClient()
+	suite.client = GetClient()
 
-	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
+	assert.NotNil(suite.client, "\nCould not get Client, therefore tests could not start")
 
-	ten := client.Tenants.New("IGNW-APT", "A AP testing tenant made by IGNW")
+	ten := suite.client.Tenants.New("IGNW-APT", "A AP testing tenant made by IGNW")
 
 	assert.NotNil(ten)
 
-	err := client.Tenants.Save(ten)
+	err := suite.client.Tenants.Save(ten)
 
 	assert.Nil(err)
 
-	ap := client.AppProfiles.New("IGNW-AP1", "A testing application profile made by IGNW")
+	ap := suite.client.AppProfiles.New("IGNW-AP1", "A testing application profile made by IGNW")
 
 	ten.AddAppProfile(ap)
 
-	err = client.AppProfiles.Save(ap)
+	err = suite.client.AppProfiles.Save(ap)
 
 	assert.Nil(err)
 }
@@ -43,15 +42,11 @@ func (suite *ApplicationProfileServiceTestSuite) SetupTest() {
 func (suite *ApplicationProfileServiceTestSuite) TearDownTest() {
 	assert := assert.New(suite.T())
 
-	client := GetClient()
-
-	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
-
-	err := client.AppProfiles.Delete("uni/tn-IGNW-APT/AP-IGNW-AP1")
+	err := suite.client.AppProfiles.Delete("uni/tn-IGNW-APT/ap-IGNW-AP1")
 
 	assert.Nil(err)
 
-	err = client.Tenants.Delete("uni/tn-IGNW-APT")
+	err = suite.client.Tenants.Delete("uni/tn-IGNW-APT")
 
 	assert.Nil(err)
 }
@@ -59,19 +54,15 @@ func (suite *ApplicationProfileServiceTestSuite) TearDownTest() {
 func (suite *ApplicationProfileServiceTestSuite) TestApplicationProfileServiceGet() {
 	assert := assert.New(suite.T())
 
-	client := GetClient()
-
-	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
-
-	ap, err := client.AppProfiles.Get("uni/tn-IGNW-APT/AP-IGNW-AP1")
+	ap, err := suite.client.AppProfiles.Get("uni/tn-IGNW-APT/ap-IGNW-AP1")
 
 	assert.Nil(err)
 
 	if assert.NotNil(ap) {
 
 		assert.Equal("IGNW-AP1", ap.Name)
-		assert.Equal("AP-IGNW-AP1", ap.ResourceName)
-		assert.Equal("uni/tn-IGNW-APT/AP-IGNW-AP1", ap.DomainName)
+		assert.Equal("ap-IGNW-AP1", ap.ResourceName)
+		assert.Equal("uni/tn-IGNW-APT/ap-IGNW-AP1", ap.DomainName)
 		assert.Equal("A testing application profile made by IGNW", ap.Description)
 		assert.Empty(ap.Status)
 
@@ -82,11 +73,7 @@ func (suite *ApplicationProfileServiceTestSuite) TestApplicationProfileServiceGe
 func (suite *ApplicationProfileServiceTestSuite) TestApplicationProfileServiceGetByName() {
 	assert := assert.New(suite.T())
 
-	client := GetClient()
-
-	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
-
-	profiles, err := client.Tenants.GetByName("IGNW-C1")
+	profiles, err := suite.client.AppProfiles.GetByName("IGNW-AP1")
 
 	assert.Nil(err)
 
@@ -97,10 +84,10 @@ func (suite *ApplicationProfileServiceTestSuite) TestApplicationProfileServiceGe
 		assert.Contains(profiles, &models.AppProfile{
 			models.ResourceAttributes{
 				Name:         "IGNW-AP1",
-				ResourceName: "AP-IGNW-AP1",
-				DomainName:   "uni/tn-IGNW/AP-IGNW-AP1",
+				ResourceName: "ap-IGNW-AP1",
+				DomainName:   "uni/tn-IGNW-APT/ap-IGNW-AP1",
 				Description:  "A testing application profile made by IGNW",
-				ObjectClass:  "fvAP",
+				ObjectClass:  "fvAp",
 				Status:       "",
 			},
 			nil,
@@ -113,11 +100,7 @@ func (suite *ApplicationProfileServiceTestSuite) TestApplicationProfileServiceGe
 func (suite *ApplicationProfileServiceTestSuite) TestApplicationProfileServiceGetAll() {
 	assert := assert.New(suite.T())
 
-	client := GetClient()
-
-	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
-
-	data, err := client.Tenants.GetAll()
+	data, err := suite.client.AppProfiles.GetAll()
 
 	assert.Nil(err)
 
@@ -126,21 +109,15 @@ func (suite *ApplicationProfileServiceTestSuite) TestApplicationProfileServiceGe
 		assert.Contains(data, &models.AppProfile{
 			models.ResourceAttributes{
 				Name:         "IGNW-AP1",
-				ResourceName: "AP-IGNW-AP1",
-				DomainName:   "uni/tn-IGNW/AP-IGNW-AP1",
+				ResourceName: "ap-IGNW-AP1",
+				DomainName:   "uni/tn-IGNW-APT/ap-IGNW-AP1",
 				Description:  "A testing application profile made by IGNW",
-				ObjectClass:  "fvAP",
+				ObjectClass:  "fvAp",
 				Status:       "",
 			},
 			nil,
 			nil,
 		})
-
-		suite.T().Log(fmt.Printf("Got These Application Profiles: %#v", data))
-
-		for key, bd := range data {
-			suite.T().Log(fmt.Printf("\nApplication Profile #%s has Name %s\n", strconv.Itoa(key), bd.Name))
-		}
 	}
 }
 

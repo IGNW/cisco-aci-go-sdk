@@ -3,55 +3,51 @@
 package service
 
 import (
-	"fmt"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"strconv"
 	"testing"
 )
 
 type TenantServiceTestSuite struct {
 	suite.Suite
+	client *Client
 }
 
-func (suite *TenantServiceTestSuite) SetupTest() {
+func (suite *TenantServiceTestSuite) SetupSuite() {
+	suite.T().Log("SetupSuite")
 
 	assert := assert.New(suite.T())
 
-	client := GetClient()
+	suite.client = GetClient()
 
-	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
+	assert.NotNil(suite.client, "\nCould not get Client, therefore tests could not start")
 
-	ten := client.Tenants.New("IGNW", "A Testing tenant made by IGNW")
+	ten := suite.client.Tenants.New("IGNW", "A Testing tenant made by IGNW")
 
 	assert.NotNil(ten)
 
-	err := client.Tenants.Save(ten)
+	err := suite.client.Tenants.Save(ten)
 
 	assert.Nil(err)
 }
 
-func (suite *TenantServiceTestSuite) TearDownTest() {
+func (suite *TenantServiceTestSuite) TearDownSuite() {
+	suite.T().Log("TearDownSuite")
+
 	assert := assert.New(suite.T())
 
-	client := GetClient()
-
-	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
-
-	err := client.Tenants.Delete("uni/tn-IGNW")
+	err := suite.client.Tenants.Delete("uni/tn-IGNW")
 
 	assert.Nil(err)
 }
 
 func (suite *TenantServiceTestSuite) TestTenantServiceGet() {
+	suite.T().Log("TestTenantServiceGet")
+
 	assert := assert.New(suite.T())
 
-	client := GetClient()
-
-	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
-
-	ten, err := client.Tenants.Get("uni/tn-IGNW")
+	ten, err := suite.client.Tenants.Get("uni/tn-IGNW")
 
 	assert.Nil(err)
 
@@ -67,13 +63,11 @@ func (suite *TenantServiceTestSuite) TestTenantServiceGet() {
 }
 
 func (suite *TenantServiceTestSuite) TestTenantServiceGetByName() {
+	suite.T().Log("TestTenantServiceGetByName")
+
 	assert := assert.New(suite.T())
 
-	client := GetClient()
-
-	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
-
-	tenants, err := client.Tenants.GetByName("IGNW")
+	tenants, err := suite.client.Tenants.GetByName("IGNW")
 
 	assert.Nil(err)
 
@@ -99,13 +93,11 @@ func (suite *TenantServiceTestSuite) TestTenantServiceGetByName() {
 }
 
 func (suite *TenantServiceTestSuite) TestTenantServiceGetAll() {
+	suite.T().Log("TestTenantServiceGetAll")
+
 	assert := assert.New(suite.T())
 
-	client := GetClient()
-
-	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
-
-	data, err := client.Tenants.GetAll()
+	data, err := suite.client.Tenants.GetAll()
 
 	assert.Nil(err)
 
@@ -127,12 +119,6 @@ func (suite *TenantServiceTestSuite) TestTenantServiceGetAll() {
 			nil,
 			nil,
 		})
-
-		suite.T().Log(fmt.Printf("Got These Tenants: %#v", data))
-
-		for key, tenant := range data {
-			suite.T().Log(fmt.Printf("\nTenant  #%s has Name %s\n", strconv.Itoa(key), tenant.Name))
-		}
 	}
 }
 

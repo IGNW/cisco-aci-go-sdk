@@ -1,11 +1,13 @@
 package service
 
 import (
-	"fmt"
 	"github.com/Jeffail/gabs"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
+
+const SJ_RESOURCE_NAME_PREFIX = "subj"
+const SJ_OBJECT_CLASS = "vzSubj"
 
 var subjectServiceInstance *SubjectService
 
@@ -16,7 +18,9 @@ type SubjectService struct {
 func GetSubjectService(client *Client) *SubjectService {
 	if subjectServiceInstance == nil {
 		subjectServiceInstance = &SubjectService{ResourceService{
-			ObjectClass: "@TODO",
+			ObjectClass:        SJ_OBJECT_CLASS,
+			ResourceNamePrefix: SJ_RESOURCE_NAME_PREFIX,
+			HasParent:          true,
 		}}
 	}
 	return subjectServiceInstance
@@ -24,17 +28,15 @@ func GetSubjectService(client *Client) *SubjectService {
 
 /* New creates a new Subject with the appropriate default values */
 func (ss SubjectService) New(name string, description string) *models.Subject {
-	resourceName := fmt.Sprintf("@TODO-%s", name)
 
 	s := models.Subject{models.ResourceAttributes{
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  "@TODO",
-		ResourceName: resourceName,
-	},
-		nil,
-	}
+		ObjectClass:  SJ_OBJECT_CLASS,
+		ResourceName: ss.getResourceName(name),
+	}}
+
 	//Do any additional construction logic here.
 	return &s
 }
@@ -67,13 +69,30 @@ func (ss SubjectService) Get(domainName string) (*models.Subject, error) {
 	return newSubject, nil
 }
 
+func (ss SubjectService) GetByName(name string) ([]*models.Subject, error) {
+
+	data, err := ss.ResourceService.GetByName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return ss.fromDataArray(data)
+}
+
+
 func (ss SubjectService) GetAll() ([]*models.Subject, error) {
-	var epgs []*models.Subject
-	var errors error
+
 	data, err := ss.ResourceService.GetAll()
 	if err != nil {
 		return nil, err
 	}
+
+	return ss.fromDataArray(data)
+}
+
+func (ss SubjectService) fromDataArray(data []*gabs.Container) ([]*models.Subject, error) {
+	var epgs []*models.Subject
+	var err, errors error
 
 	// For each epg in the payload
 	for _, fvSubject := range data {
@@ -92,27 +111,14 @@ func (ss SubjectService) GetAll() ([]*models.Subject, error) {
 }
 
 func (ss SubjectService) fromJSON(data *gabs.Container) (*models.Subject, error) {
-	var errors error
-	var valPath, errMsg, name, desc string
-	var ok bool
 
-	errMsg = "Could not find value '%s' within child of imdata"
-	valPath = ""
+	resourceAttributes, err := ss.fromJSONToAttributes(ss.ObjectClass, data)
 
-	valPath = "@TODO.attributss.name"
-	if name, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
+	if err != nil {
+		return nil, err
 	}
 
-	valPath = "@TODO.attributss.descr"
-	if desc, ok = data.Path(valPath).Data().(string); !ok {
-		errors = multierror.Append(errors, fmt.Errorf(errMsg, valPath))
-	}
-
-	if errors != nil {
-		return nil, errors
-	}
-
-	newSubject := ss.New(name, desc)
-	return newSubject, nil
+	return &models.Subject{
+		resourceAttributes,
+	}, nil
 }
