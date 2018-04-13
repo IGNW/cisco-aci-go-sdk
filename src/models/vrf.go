@@ -6,14 +6,13 @@ import (
 	"github.com/Jeffail/gabs"
 )
 
-// import "fmt"
-
+// Represents an ACI VRF.
 type VRF struct {
 	ResourceAttributes
 	BridgeDomains []*BridgeDomain
 }
 
-/* New creates a new Tenant with the appropriate default values */
+// New creates a new VRF with the appropriate default values.
 func NewVRF(name string, alias string, descr string) ResourceInterface {
 	resourceName := fmt.Sprintf("ctx-%s", name)
 

@@ -6,13 +6,14 @@ import (
 	"github.com/Jeffail/gabs"
 )
 
+// Represents an ACI Application Profile.
 type AppProfile struct {
 	ResourceAttributes
 	EPGs   []*EPG
 	Parent *Tenant
 }
 
-/* NewAppProfile creates a new AppProfile with the appropriate default values */
+// NewAppProfile creates a new AppProfile with the appropriate default values.
 func NewAppProfile(name string, alias string, descr string) ResourceInterface {
 	resourceName := fmt.Sprintf("ap-%s", name)
 

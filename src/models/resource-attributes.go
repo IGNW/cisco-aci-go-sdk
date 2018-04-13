@@ -6,11 +6,8 @@ import (
 	"github.com/Jeffail/gabs"
 )
 
-/**ResourceAttributes represents the generic properties of *most*
-ACI resources
-*/
+// Represents the base attributes of all ACI models.
 type ResourceAttributes struct {
-	// client       *Client
 	Name         string
 	ResourceName string
 	DomainName   string
@@ -23,7 +20,7 @@ type ResourceAttributes struct {
 }
 
 /** Defines the methods an object must have to be considered to have implemented the ResourceInterface,
-which can be used as an arugment type in a method
+which can be used as an argument type in a method
 */
 type ResourceInterface interface {
 	GetAPIPayload() *gabs.Container

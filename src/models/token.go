@@ -8,6 +8,7 @@ import (
 	"github.com/Jeffail/gabs"
 )
 
+// Internal model used to manage ACI Authentication Tokens.
 type AuthToken struct {
 	Token         string
 	Expiry        time.Time

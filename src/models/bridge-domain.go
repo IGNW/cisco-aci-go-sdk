@@ -6,13 +6,14 @@ import (
 	"github.com/Jeffail/gabs"
 )
 
+// Represents an ACI Bridge Domain.
 type BridgeDomain struct {
 	ResourceAttributes
 	Subnets []*Subnet
 	EPGs    []*EPG
 }
 
-/* NewBridgeDomain creates a new BridgeDomain with the appropriate default values */
+// NewBridgeDomain creates a new BridgeDomain with the appropriate default values.
 func NewBridgeDomain(name string, alias string, descr string) ResourceInterface {
 	resourceName := fmt.Sprintf("@TODO-%s", name)
 

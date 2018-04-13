@@ -6,13 +6,14 @@ import (
 	"github.com/Jeffail/gabs"
 )
 
-//Filter represents the Filter resource type in ACI
+// Represents an ACI Contract Filter.
 type Filter struct {
 	ResourceAttributes
 	Subjects []*Subject
 	Entries  []*Entry
 }
 
+// Represents an ACI Contract Filter Entry.
 type Entry struct {
 	Protocol           string
 	Source, Desination ToFrom
@@ -22,7 +23,7 @@ type ToFrom struct {
 	To, From string
 }
 
-// NewFilter creates a new Filter with the appropriate default values
+// NewFilter creates a new Filter with the appropriate default values.
 func NewFilter(name string, alias string, descr string) ResourceInterface {
 	resourceName := fmt.Sprintf("@TODO-%s", name)
 

@@ -6,6 +6,7 @@ import (
 	"github.com/Jeffail/gabs"
 )
 
+// Represents an ACI Contract Subject.
 type Subject struct {
 	ResourceAttributes
 }

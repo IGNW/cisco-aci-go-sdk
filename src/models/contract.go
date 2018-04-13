@@ -6,6 +6,7 @@ import (
 	"github.com/Jeffail/gabs"
 )
 
+// Represents an ACI Contract.
 type Contract struct {
 	ResourceAttributes
 	Subjects []*Subject

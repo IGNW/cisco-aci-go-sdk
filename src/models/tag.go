@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Represents an ACI Tag.
 type Tag struct {
 	Name   string
 	Status string

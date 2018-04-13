@@ -1,5 +1,6 @@
 package models
 
+// Represents an ACI Tenant.
 type Tenant struct {
 	ResourceAttributes
 	L3NetIdentifier string

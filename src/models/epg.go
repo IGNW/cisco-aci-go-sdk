@@ -8,6 +8,7 @@ import (
 
 // import "fmt"
 
+// Represents an ACI Endpoint Group (EPG).
 type EPG struct {
 	ResourceAttributes
 }

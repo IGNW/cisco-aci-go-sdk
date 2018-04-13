@@ -26,7 +26,7 @@ func GetFilterService(client *Client) *FilterService {
 	return filterServiceInstance
 }
 
-/* New creates a new Filter with the appropriate default values */
+// New creates a new Filter with the appropriate default values.
 func (fs FilterService) New(name string, description string) *models.Filter {
 
 	b := models.Filter{models.ResourceAttributes{

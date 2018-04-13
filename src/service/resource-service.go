@@ -12,7 +12,6 @@ import (
 
 // Services represents a collection of service objects within the client
 // will acess.client().AppProfiles ...
-
 type Services struct {
 	AppProfiles   *AppProfileService
 	BridgeDomains *BridgeDomainService

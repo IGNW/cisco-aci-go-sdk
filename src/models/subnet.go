@@ -6,6 +6,7 @@ import (
 	"github.com/Jeffail/gabs"
 )
 
+// Represents an ACI Bridge Domain Subnet.
 type Subnet struct {
 	ResourceAttributes
 }
