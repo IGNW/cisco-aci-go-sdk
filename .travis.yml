@@ -1,1 +1,6 @@
-// TODO CI
+
+language: go
+script:
+- go fmt ./
+notifications:
+  slack: ignw:IxpMZ19gbbzU0vAM2SjvGtFx
