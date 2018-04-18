@@ -1,10 +1,11 @@
 // +build examples
+
 package examples
 
 import (
 	"fmt"
-	"github.com/ignw/cisco-aci-go-sdk/src/service"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
+	"github.com/ignw/cisco-aci-go-sdk/src/service"
 )
 
 func main() {

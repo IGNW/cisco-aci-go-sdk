@@ -6,7 +6,6 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-// TODO: validate these settings are correct
 const AP_RESOURCE_NAME_PREFIX = "ap"
 const AP_OBJECT_CLASS = "fvAp"
 
@@ -37,7 +36,6 @@ func (aps AppProfileService) New(name string, description string) *models.AppPro
 		ObjectClass:  AP_OBJECT_CLASS,
 		ResourceName: aps.getResourceName(name),
 	},
-		nil,
 		nil,
 	}
 	//Do any additional construction logic here.
@@ -135,7 +133,6 @@ func (aps AppProfileService) fromJSON(data *gabs.Container) (*models.AppProfile,
 
 	return &models.AppProfile{
 		resourceAttributes,
-		nil,
 		nil,
 	}, nil
 }

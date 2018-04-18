@@ -90,6 +90,7 @@ func (suite *BridgeDomainServiceTestSuite) TestBridgeDomainServiceGetByName() {
 				ObjectClass:  "fvBD",
 				Status:       "",
 			},
+			false,
 			nil,
 			nil,
 		})
@@ -115,6 +116,7 @@ func (suite *BridgeDomainServiceTestSuite) TestBridgeDomainServiceGetAll() {
 				ObjectClass:  "fvBD",
 				Status:       "",
 			},
+			false,
 			nil,
 			nil,
 		})

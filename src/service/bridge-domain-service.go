@@ -36,9 +36,26 @@ func (bds BridgeDomainService) New(name string, description string) *models.Brid
 		ObjectClass:  BD_OBJECT_CLASS,
 		ResourceName: bds.getResourceName(name),
 	},
+		"",
+		false,
+		false,
+		"",
+		false,
+		false,
+		false,
+		false,
+		"",
+		"",
+		"",
+		false,
+		false,
+		"",
+		"",
+		"",
 		nil,
 		nil,
 	}
+
 	//Do any additional construction logic here.
 	return &b
 }
@@ -121,17 +138,12 @@ func (bds BridgeDomainService) fromDataArray(data []*gabs.Container) ([]*models.
 
 func (bds BridgeDomainService) fromJSON(data *gabs.Container) (*models.BridgeDomain, error) {
 
-	resourceAttributes, err := bds.fromJSONToAttributes(bds.ObjectClass, data)
+	modelMap, err := bds.fromJSONToMap(models.NewBridgeDomainMap(), data)
 
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: process child collections
+	return models.NewBridgeDomain(modelMap), nil
 
-	return &models.BridgeDomain{
-		resourceAttributes,
-		nil,
-		nil,
-	}, nil
 }
