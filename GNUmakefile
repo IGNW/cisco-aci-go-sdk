@@ -8,7 +8,7 @@ export APIC_USER=admin
 export APIC_PASS=
 export APIC_ALLOW_INSECURE=true
 
-default: build
+default: build unit
 
 build: fmtcheck install
 	@echo "go build SDK and install vendor packages"
