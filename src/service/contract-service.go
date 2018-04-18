@@ -111,7 +111,6 @@ func (cs ContractService) fromDataArray(data []*gabs.Container) ([]*models.Contr
 	return contracts, err
 }
 
-
 func (cs ContractService) fromJSON(data *gabs.Container) (*models.Contract, error) {
 	resourceAttributes, err := cs.fromJSONToAttributes(cs.ObjectClass, data)
 

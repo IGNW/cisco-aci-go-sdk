@@ -79,7 +79,6 @@ func (ss SubjectService) GetByName(name string) ([]*models.Subject, error) {
 	return ss.fromDataArray(data)
 }
 
-
 func (ss SubjectService) GetAll() ([]*models.Subject, error) {
 
 	data, err := ss.ResourceService.GetAll()

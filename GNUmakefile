@@ -10,7 +10,7 @@ export APIC_ALLOW_INSECURE=true
 
 default: build
 
-build: fmtcheck
+build: fmtcheck install
 	@echo "go build SDK and install vendor packages"
 	@go build ${SDK_ONLY_PKGS}
 
@@ -26,6 +26,10 @@ unit: build
 integration: build
 	@echo "go test [integration] SDK and vendor packages"
 	@go test -tags "integration" $(TEST) || exit 1
+
+install:
+	@echo "go get -t ./... [installing dependencies]"
+	@go get -t ./...
 
 vet:
 	@echo "go vet ."
