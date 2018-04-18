@@ -4,5 +4,11 @@ language: go
 go:
 - "1.10.x"
 
+before_install:
+- find $GOPATH/src/github.com/ -depth -exec rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {} \;
+
+after_install:
+- find $GOPATH/src/github.com/ -depth -exec rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {} \;
+
 notifications:
   slack: ignw:IxpMZ19gbbzU0vAM2SjvGtFx
