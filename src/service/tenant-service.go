@@ -35,7 +35,6 @@ func (ts TenantService) New(name string, description string) *models.Tenant {
 		ObjectClass:  TN_OBJECT_CLASS,
 		ResourceName: ts.getResourceName(name),
 	},
-		"",
 		nil,
 		nil,
 		nil,
@@ -131,7 +130,6 @@ func (ts TenantService) fromJSON(data *gabs.Container) (*models.Tenant, error) {
 
 	return &models.Tenant{
 		resourceAttributes,
-		"",
 		nil,
 		nil,
 		nil,

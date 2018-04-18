@@ -47,15 +47,14 @@ func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 		return fmt.Errorf("\nGot Error While Validating, Auth'd Request failed w/ %v", err)
 	}
 
-	data := r.GetAPIPayload()
+	json, err := s.toJSON(r)
 
-	data.Set("created, modified", s.ObjectClass, "attributes", "status")
+	json.Set("created, modified", s.ObjectClass, "attributes", "status")
 
-	json := r.GetAPIPayload()
 	method := "POST"
 
 	// TODO: refactor to getResourcePath()
-	// path = s.getResourcePath(r, "")
+	path = s.getResourcePath(r, "")
 
 	parent = r.GetParent()
 
@@ -229,6 +228,41 @@ func (s ResourceService) getChildren(data *gabs.Container) ([]*gabs.Container, e
 	return data.S("imdata").Children()
 }
 
+// TODO: refactor the create json function from ResourceAttributes to ResourceService
+func (s ResourceService) toJSON(model models.ResourceInterface) (*gabs.Container, error) {
+	var data *gabs.Container
+	var err error
+
+	data, err = s.CreateEmptyJSONContainer()
+
+	if err != nil {
+		return nil, err
+	}
+
+	for key, value := range model.ToMap() {
+		data.Set(value, s.ObjectClass, "attributes", key)
+		//TODO: add error checking?
+	}
+
+	data.Array(s.ObjectClass, "children")
+
+	return data, nil
+}
+
+// Create an empty JSON container compatible with ACI object model.
+func (s ResourceService) CreateEmptyJSONContainer() (*gabs.Container, error) {
+	containerJSON := []byte(fmt.Sprintf(`{
+		"%s": {
+			"attributes": {
+			}
+		}
+	}`, s.ObjectClass))
+
+	return gabs.ParseJSON(containerJSON)
+}
+
+// TODO: Deprecate
+// Convert JSON container to ResourceAttributes.
 func (s ResourceService) fromJSONToAttributes(objectClass string, data *gabs.Container) (models.ResourceAttributes, error) {
 	var errors error
 	var path, value, errMsg string
@@ -262,6 +296,34 @@ func (s ResourceService) fromJSONToAttributes(objectClass string, data *gabs.Con
 		ObjectClass:  objectClass,
 	}, nil
 
+}
+
+// fromJSONToMap converts the Gabs container into a string map based on the supplied model template
+func (s ResourceService) fromJSONToMap(template map[string]string, data *gabs.Container) (map[string]string, error) {
+	var errors error
+	var path, value, errMsg string
+	var ok bool
+
+	errMsg = "Could not find value '%s' within child of imdata"
+
+	for key, _ := range template {
+		path = s.ObjectClass + ".attributes." + key
+		if value, ok = data.Path(path).Data().(string); !ok {
+			errors = multierror.Append(errors, fmt.Errorf(errMsg, path))
+		}
+		template[key] = value
+	}
+
+	if errors != nil {
+		return nil, errors
+	}
+
+	paths := strings.Split(template["dn"], "/")
+
+	template["rn"] = paths[len(paths)-1]
+	template["objectClass"] = s.ObjectClass
+
+	return template, nil
 }
 
 func (s ResourceService) getResourceName(name string) string {

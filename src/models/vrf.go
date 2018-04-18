@@ -1,37 +1,49 @@
 package models
 
-import (
-	"fmt"
-
-	"github.com/Jeffail/gabs"
-)
-
 // Represents an ACI VRF.
+// See: https://pubhub.devnetcloud.com/media/apic-mim-ref-311/docs/MO-fvCtx.html
 type VRF struct {
 	ResourceAttributes
-	BridgeDomains []*BridgeDomain
+	Enforce              string `unenforced enforced`
+	EnforcementDirection string `ingress egress`
+	BridgeDomains        []*BridgeDomain
 }
 
-// New creates a new VRF with the appropriate default values.
-func NewVRF(name string, alias string, descr string) ResourceInterface {
-	resourceName := fmt.Sprintf("ctx-%s", name)
+func (v *VRF) ToMap() map[string]string {
+	var model = v.ResourceAttributes.ToMap()
 
-	v := VRF{ResourceAttributes{
-		Name:         name,
-		NameAlias:    alias,
-		Description:  descr,
-		Status:       "created",
-		ObjectClass:  "fvCtx",
-		ResourceName: resourceName,
-	},
+	// Treated as virtual IP address. Used in case of BD extended to multiple sites.
+	model["pcEnfPref"] = v.Enforce
+	model["pcEnfDir"] = v.EnforcementDirection
+
+	return model
+}
+
+// NewVRF will construct a VRF from a string map.
+func NewVRF(model map[string]string) *VRF {
+
+	v := VRF{NewResourceAttributes(model),
+		"",
+		"",
 		nil,
 	}
-	//Do any additional construction logic here.
+
+	// The subnet control state. The control can be specific protocols applied to the subnet such as IGMP Snooping.
+	v.Enforce = model["pcEnfPref"]
+	v.EnforcementDirection = model["pcEnfDir"]
+
 	return &v
 }
 
-func VRFFromJSON(data *gabs.Container) (ResourceInterface, error) {
-	return nil, nil
+// NewVRFMap will construct a string map from reading VRF values that can be converted to the type.
+func NewVRFMap() map[string]string {
+
+	m := NewResourceAttributesMap()
+
+	m["pcEnfPref"] = "unenforced"
+	m["pcEnfDir"] = "ingress"
+
+	return m
 }
 
 // AddBridgeDomain adds a BridgeDomain to the VRF BridgeDomain list

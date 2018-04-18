@@ -3,28 +3,86 @@
 package models
 
 import (
-	"reflect"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-func TestNewEPG(t *testing.T) {
-	type args struct {
-		name  string
-		alias string
-		descr string
+type EPGTestSuite struct {
+	suite.Suite
+}
+
+func (suite *EPGTestSuite) TestEPGToMap() {
+	assert := assert.New(suite.T())
+
+	epgMap := map[string]string{
+		"dn":                  "",
+		"status":              "",
+		"descr":               "",
+		"name":                "TestEPGMap",
+		"isAttrBasedEPg":      "yes",
+		"isSharedSrvMsiteEPg": "yes",
+		"pcEnfPref":           "enforced",
+		"prefGrMemb":          "include",
+		"matchT":              "All",
 	}
-	tests := []struct {
-		name string
-		args args
-		want EPG
-	}{
-		// TODO: Add test cases.
+
+	epg := EPG{
+		ResourceAttributes{Name: "TestEPGMap"},
+		true,
+		true,
+		"enforced",
+		"All",
+		"include",
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewEPG(tt.args.name, tt.args.alias, tt.args.descr); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewEPG() = %v, want %v", got, tt.want)
-			}
-		})
+
+	assert.Equal(epgMap, epg.ToMap())
+
+}
+
+func (suite *EPGTestSuite) TestNewEPGFromDefaults() {
+	assert := assert.New(suite.T())
+
+	epg := NewEPG(NewEPGMap())
+
+	expected := EPG{
+		ResourceAttributes{Name: ""},
+		false,
+		false,
+		"unenforced",
+		"AtleastOne",
+		"exclude",
 	}
+
+	assert.Equal(&expected, epg)
+}
+
+func (suite *EPGTestSuite) TestNewEPGFromMap() {
+	assert := assert.New(suite.T())
+
+	epgMap := map[string]string{
+		"dn":                  "",
+		"status":              "",
+		"descr":               "",
+		"name":                "TestEPGMap",
+		"isAttrBasedEPg":      "yes",
+		"isSharedSrvMsiteEPg": "yes",
+		"pcEnfPref":           "enforced",
+		"prefGrMemb":          "include",
+		"matchT":              "All",
+	}
+
+	assert.Equal(&EPG{
+		ResourceAttributes{Name: "TestEPGMap"},
+		true,
+		true,
+		"enforced",
+		"All",
+		"include",
+	}, NewEPG(epgMap))
+
+}
+
+func TestEPGTestSuite(t *testing.T) {
+	suite.Run(t, new(EPGTestSuite))
 }

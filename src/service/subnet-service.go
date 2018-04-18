@@ -36,7 +36,13 @@ func (ss SubnetService) New(name string, description string) *models.Subnet {
 		Status:       "created, modified",
 		ObjectClass:  SJ_OBJECT_CLASS,
 		ResourceName: ss.getResourceName(name),
-	}}
+	},
+		"",
+		"",
+		false,
+		nil,
+		false,
+	}
 
 	//Do any additional construction logic here.
 	return &s
@@ -119,5 +125,10 @@ func (ss SubnetService) fromJSON(data *gabs.Container) (*models.Subnet, error) {
 
 	return &models.Subnet{
 		resourceAttributes,
+		"",
+		"",
+		false,
+		nil,
+		false,
 	}, nil
 }
