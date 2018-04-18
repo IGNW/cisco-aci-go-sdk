@@ -6,8 +6,8 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-const F_RESOURCE_NAME_PREFIX = "rsbdFloodTo"
-const F_OBJECT_CLASS = "fvRsBdFloodTo"
+const F_RESOURCE_NAME_PREFIX = "flt"
+const F_OBJECT_CLASS = "vzFilter"
 
 var filterServiceInstance *FilterService
 

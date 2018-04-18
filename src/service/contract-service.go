@@ -36,6 +36,8 @@ func (cs ContractService) New(name string, description string) *models.Contract 
 		ObjectClass:  C_OBJECT_CLASS,
 		ResourceName: cs.getResourceName(name),
 	},
+		"",
+		"",
 		nil,
 		nil,
 	}
@@ -122,6 +124,8 @@ func (cs ContractService) fromJSON(data *gabs.Container) (*models.Contract, erro
 
 	return &models.Contract{
 		resourceAttributes,
+		"",
+		"",
 		nil,
 		nil,
 	}, nil

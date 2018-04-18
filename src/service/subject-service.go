@@ -35,7 +35,13 @@ func (ss SubjectService) New(name string, description string) *models.Subject {
 		Status:       "created, modified",
 		ObjectClass:  SJ_OBJECT_CLASS,
 		ResourceName: ss.getResourceName(name),
-	}}
+	},
+		"",
+		"",
+		"",
+		"",
+		false,
+	}
 
 	//Do any additional construction logic here.
 	return &s
@@ -119,5 +125,10 @@ func (ss SubjectService) fromJSON(data *gabs.Container) (*models.Subject, error)
 
 	return &models.Subject{
 		resourceAttributes,
+		"",
+		"",
+		"",
+		"",
+		false,
 	}, nil
 }

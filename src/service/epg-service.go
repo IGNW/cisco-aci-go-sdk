@@ -36,7 +36,13 @@ func (es EPGService) New(name string, description string) *models.EPG {
 		Status:       "created, modified",
 		ObjectClass:  E_OBJECT_CLASS,
 		ResourceName: es.getResourceName(name),
-	}}
+	},
+		false,
+		false,
+		"",
+		"",
+		"",
+	}
 
 	//Do any additional construction logic here.
 	return &e
@@ -121,5 +127,10 @@ func (es EPGService) fromJSON(data *gabs.Container) (*models.EPG, error) {
 
 	return &models.EPG{
 		resourceAttributes,
+		false,
+		false,
+		"",
+		"",
+		"",
 	}, nil
 }

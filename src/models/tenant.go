@@ -3,12 +3,36 @@ package models
 // Represents an ACI Tenant.
 type Tenant struct {
 	ResourceAttributes
-	L3NetIdentifier string
-	VRFs            []*VRF
-	BridgeDomains   []*BridgeDomain
-	AppProfiles     []*AppProfile
-	Contracts       []*Contract
-	Filters         []*Filter
+	VRFs          []*VRF
+	BridgeDomains []*BridgeDomain
+	AppProfiles   []*AppProfile
+	Contracts     []*Contract
+	Filters       []*Filter
+}
+
+func (s *Tenant) ToMap() map[string]string {
+	var model = s.ResourceAttributes.ToMap()
+	return model
+}
+
+// NewTenant will construct a Tenant from a string map.
+func NewTenant(model map[string]string) *Tenant {
+
+	t := Tenant{NewResourceAttributes(model),
+		nil,
+		nil,
+		nil,
+		nil,
+		nil,
+	}
+
+	return &t
+}
+
+// NewTenantMap will construct a string map from reading Tenant values that can be converted to the type.
+func NewTenantMap() map[string]string {
+	m := NewResourceAttributesMap()
+	return m
 }
 
 // AddVRF adds a VRF to the Tenants VRF list and sets the Parent prop of the VRF to the Tenant it was called from

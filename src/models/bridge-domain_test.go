@@ -3,68 +3,147 @@
 package models
 
 import (
-	"reflect"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-func TestNewBridgeDomain(t *testing.T) {
-	type args struct {
-		name  string
-		alias string
-		descr string
-	}
-	tests := []struct {
-		name string
-		args args
-		want BridgeDomain
-	}{}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewBridgeDomain(tt.args.name, tt.args.alias, tt.args.descr); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewBridgeDomain() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+type BridgeDomainTestSuite struct {
+	suite.Suite
 }
 
-func TestBridgeDomain_AddSubnet(t *testing.T) {
-	type args struct {
-		s *Subnet
+func (suite *BridgeDomainTestSuite) TestBridgeDomainToMap() {
+	assert := assert.New(suite.T())
+
+	bdMap := map[string]string{
+		"dn":                       "",
+		"status":                   "",
+		"descr":                    "",
+		"name":                     "TestBridgeDomainMap",
+		"type":                     "fc",
+		"OptimizeWanBandwidth":     "yes",
+		"arpFlood":                 "yes",
+		"epMoveDetectMode":         "garp",
+		"intersiteBumTrafficAllow": "yes",
+		"intersiteL2Stretch":       "yes",
+		"ipLearning":               "yes",
+		"limitIpLearnToSubnets":    "yes",
+		"llAddr":                   "10.1.1.51",
+		"mac":                      "00:22:BD:F8:19:FF",
+		"multiDstPktAct":           "drop",
+		"mcastAllow":               "yes",
+		"unicastRoute":             "yes",
+		"unkMacUcastAct":           "proxy",
+		"unkMcastAct":              "flood",
+		"vmac":                     "00:22:BD:F8:19:AA",
 	}
-	tests := []struct {
-		name string
-		bd   *BridgeDomain
-		args args
-		want *BridgeDomain
-	}{
-		// @TODO: Add test cases.
+
+	bd := BridgeDomain{
+		ResourceAttributes{Name: "TestBridgeDomainMap"},
+		"fc",
+		true,
+		true,
+		"garp",
+		true,
+		true,
+		true,
+		true,
+		"10.1.1.51",
+		"00:22:BD:F8:19:FF",
+		"drop",
+		true,
+		true,
+		"proxy",
+		"flood",
+		"00:22:BD:F8:19:AA",
+		nil,
+		nil,
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.bd.AddSubnet(tt.args.s); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("BridgeDomain.AddSubnet() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+
+	assert.Equal(bdMap, bd.ToMap())
+
 }
 
-func TestBridgeDomain_AddEPG(t *testing.T) {
-	type args struct {
-		e *EPG
+func (suite *BridgeDomainTestSuite) TestNewBridgeDomainFromDefaults() {
+	assert := assert.New(suite.T())
+
+	bd := NewBridgeDomain(NewBridgeDomainMap())
+
+	expected := BridgeDomain{
+		ResourceAttributes{Name: ""},
+		"regular",
+		false,
+		false,
+		"",
+		false,
+		false,
+		true,
+		true,
+		"",
+		"280487012409856",
+		"bd-flood",
+		false,
+		true,
+		"proxy",
+		"flood",
+		"",
+		nil,
+		nil,
 	}
-	tests := []struct {
-		name string
-		bd   *BridgeDomain
-		args args
-		want *BridgeDomain
-	}{
-		// @TODO: Add test cases.
+
+	assert.Equal(&expected, bd)
+}
+
+func (suite *BridgeDomainTestSuite) TestNewBridgeDomainFromMap() {
+	assert := assert.New(suite.T())
+
+	bdMap := map[string]string{
+		"dn":                       "",
+		"status":                   "",
+		"descr":                    "",
+		"name":                     "TestBridgeDomainMap",
+		"type":                     "fc",
+		"OptimizeWanBandwidth":     "yes",
+		"arpFlood":                 "yes",
+		"epMoveDetectMode":         "garp",
+		"intersiteBumTrafficAllow": "yes",
+		"intersiteL2Stretch":       "yes",
+		"ipLearning":               "yes",
+		"limitIpLearnToSubnets":    "yes",
+		"llAddr":                   "10.1.1.51",
+		"mac":                      "00:22:BD:F8:19:FF",
+		"multiDstPktAct":           "drop",
+		"mcastAllow":               "yes",
+		"unicastRoute":             "yes",
+		"unkMacUcastAct":           "proxy",
+		"unkMcastAct":              "flood",
+		"vmac":                     "00:22:BD:F8:19:AA",
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.bd.AddEPG(tt.args.e); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("BridgeDomain.AddEPG() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+
+	assert.Equal(&BridgeDomain{
+		ResourceAttributes{Name: "TestBridgeDomainMap"},
+		"fc",
+		true,
+		true,
+		"garp",
+		true,
+		true,
+		true,
+		true,
+		"10.1.1.51",
+		"00:22:BD:F8:19:FF",
+		"drop",
+		true,
+		true,
+		"proxy",
+		"flood",
+		"00:22:BD:F8:19:AA",
+		nil,
+		nil,
+	}, NewBridgeDomain(bdMap))
+
+}
+
+func TestBridgeDomainTestSuite(t *testing.T) {
+	suite.Run(t, new(BridgeDomainTestSuite))
 }

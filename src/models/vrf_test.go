@@ -3,49 +3,74 @@
 package models
 
 import (
-	"reflect"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-func TestNewVRF(t *testing.T) {
-	type args struct {
-		name  string
-		alias string
-		descr string
-	}
-	tests := []struct {
-		name string
-		args args
-		want VRF
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewVRF(tt.args.name, tt.args.alias, tt.args.descr); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewVRF() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+type VRFTestSuite struct {
+	suite.Suite
 }
 
-func TestVRF_AddBridgeDomain(t *testing.T) {
-	type args struct {
-		bd *BridgeDomain
+func (suite *VRFTestSuite) TestVRFToMap() {
+	assert := assert.New(suite.T())
+
+	sMap := map[string]string{
+		"dn":        "",
+		"status":    "",
+		"descr":     "",
+		"name":      "TestVRFMap",
+		"pcEnfPref": "enforced",
+		"pcEnfDir":  "egress",
 	}
-	tests := []struct {
-		name string
-		v    *VRF
-		args args
-		want *VRF
-	}{
-		// TODO: Add test cases.
+
+	vrf := VRF{
+		ResourceAttributes{Name: "TestVRFMap"},
+		"enforced",
+		"egress",
+		nil,
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.v.AddBridgeDomain(tt.args.bd); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("VRF.AddBridgeDomain() = %v, want %v", got, tt.want)
-			}
-		})
+
+	assert.Equal(sMap, vrf.ToMap())
+
+}
+
+func (suite *VRFTestSuite) TestNewVRFFromDefaults() {
+	assert := assert.New(suite.T())
+
+	vrf := NewVRF(NewVRFMap())
+
+	expected := VRF{
+		ResourceAttributes{Name: ""},
+		"unenforced",
+		"ingress",
+		nil,
 	}
+
+	assert.Equal(&expected, vrf)
+}
+
+func (suite *VRFTestSuite) TestNewVRFFromMap() {
+	assert := assert.New(suite.T())
+
+	sMap := map[string]string{
+		"dn":        "",
+		"status":    "",
+		"descr":     "",
+		"name":      "TestVRFMap",
+		"pcEnfPref": "enforced",
+		"pcEnfDir":  "egress",
+	}
+
+	assert.Equal(&VRF{
+		ResourceAttributes{Name: "TestVRFMap"},
+		"enforced",
+		"egress",
+		nil,
+	}, NewVRF(sMap))
+
+}
+
+func TestVRFTestSuite(t *testing.T) {
+	suite.Run(t, new(VRFTestSuite))
 }

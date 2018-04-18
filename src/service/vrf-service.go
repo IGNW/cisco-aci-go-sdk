@@ -36,6 +36,8 @@ func (vs VRFService) New(name string, description string) *models.VRF {
 		ObjectClass:  V_OBJECT_CLASS,
 		ResourceName: vs.getResourceName(name),
 	},
+		"",
+		"",
 		nil,
 	}
 	//Do any additional construction logic here.
@@ -121,6 +123,8 @@ func (vs VRFService) fromJSON(data *gabs.Container) (*models.VRF, error) {
 
 	return &models.VRF{
 		resourceAttributes,
+		"",
+		"",
 		nil,
 	}, nil
 }

@@ -1,39 +1,30 @@
 package models
 
-import (
-	"fmt"
-
-	"github.com/Jeffail/gabs"
-)
-
 // Represents an ACI Application Profile.
 type AppProfile struct {
 	ResourceAttributes
-	EPGs   []*EPG
-	Parent *Tenant
+	EPGs []*EPG
 }
 
-// NewAppProfile creates a new AppProfile with the appropriate default values.
-func NewAppProfile(name string, alias string, descr string) ResourceInterface {
-	resourceName := fmt.Sprintf("ap-%s", name)
+func (ap *AppProfile) ToMap() map[string]string {
+	var model = ap.ResourceAttributes.ToMap()
+	return model
+}
 
-	ap := AppProfile{ResourceAttributes{
-		Name:         name,
-		NameAlias:    alias,
-		Description:  descr,
-		Status:       "created",
-		ObjectClass:  "fvApp",
-		ResourceName: resourceName,
-	},
-		nil,
+// NewAppProfile will construct a AppProfile from a string map.
+func NewAppProfile(model map[string]string) *AppProfile {
+
+	a := AppProfile{NewResourceAttributes(model),
 		nil,
 	}
-	//Do any additional construction logic here.
-	return &ap
+
+	return &a
 }
 
-func AppProfileFromJSON(data *gabs.Container) (ResourceInterface, error) {
-	return nil, nil
+// NewAppProfileMap will construct a string map from reading AppProfile values that can be converted to the type.
+func NewAppProfileMap() map[string]string {
+	m := NewResourceAttributesMap()
+	return m
 }
 
 // AddEPG adds a EPG to the AppProfile EPG list and sets the Parent prop of the EPG to the AppProfile it was called from
