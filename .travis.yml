@@ -1,6 +1,8 @@
 
 language: go
-script:
-- go fmt ./
+
+go:
+- "1.10.x"
+
 notifications:
   slack: ignw:IxpMZ19gbbzU0vAM2SjvGtFx
