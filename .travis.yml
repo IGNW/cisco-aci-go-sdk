@@ -7,15 +7,6 @@ before_install:
 after_install:
 - find $GOPATH/src/github.com/ -depth -exec rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {}
   \;
-stages:
-- compile
-- test
-- name: acceptance
-  if: branch = master OR type = pull_request
-jobs:
-  include:
-  - stage: acceptance
-    script: make integration
 notifications:
   slack: ignw:IxpMZ19gbbzU0vAM2SjvGtFx
 env:
