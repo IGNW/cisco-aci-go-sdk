@@ -1,14 +1,27 @@
-
 language: go
-
 go:
-- "1.10.x"
-
+- 1.10.x
 before_install:
-- find $GOPATH/src/github.com/ -depth -exec rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {} \;
-
+- find $GOPATH/src/github.com/ -depth -exec rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {}
+  \;
 after_install:
-- find $GOPATH/src/github.com/ -depth -exec rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {} \;
-
+- find $GOPATH/src/github.com/ -depth -exec rename 's/(.*)\/([^\/]*)/$1\/\L$2/' {}
+  \;
+stages:
+- compile
+- test
+- name: acceptance
+  if: branch = master OR type = pull_request
+jobs:
+  include:
+  - stage: acceptance
+    script: make integration
 notifications:
   slack: ignw:IxpMZ19gbbzU0vAM2SjvGtFx
+env:
+  global:
+  - secure: xLCU28uH1iYhTQgomVclih8L14+6rz+ktukinhM0qFjHyBaGK+rvmetKUJinuLXv8pXmZDup+liOSBZMJurFwFPQmCOcmBgMalBswnGnb363h2sZAXgtIdK4XqX+JlaWtajcJIusWUY4Bz5EKUaxsujGoKHBPBELo6Wpzwd0G2bNjanGtAer8QEk9yMffYSmwFwbEaOAuKCun0xMXDrI/tgKwP2CD4GyDnvceDWQdFENbCB27VICzYracsipvT/p5atgqQJUKANqHm35a7oR5JAaS9Q/WCd05ybY7Byn+uyud7fWNPEq6DBvIM84dWmxH5IvHI+KqE2xJfMe/BXml/O3m8ajYMiBpT16j25uM4t1eQvwK8Uy2iNFZig36GwCBEeZQ75vRtpLKOgNPpQJS0TeT0Z/8N8j6DuJ1fypyljuBdiuu91QTWQY6BS5D7vl6IcQ4GaClHIjoqFwrtrNFPvl+2S5ofvSy4F8Hwy3SdQOCkWy7wW1lbAGMFx/0qElb5Ic/be5BZ3AOQU+NU7gGLWFafMm7170r8YrVbrO3Wt7KbKXVnliV0bFy0713m1ROemJ+ReyYiU5f9nF+WNYoZfWSK7SOSboUlQdgKGhW88PkS4tDoe7wEmWJZT5O0pF9y2SNbgSuv2iKNXC6xBs+cU3/PY1cfK2Hz1N6h0Jrj0=
+  - secure: Sf0sPWTy89ZX2MEo6pSmEyOk7v3LZZ/jfhFq/JfShDao8bQ8el9QkqZ23EOkdQ1Z1+uYfUug7LT/7RPDP/tBMm5m3aef0K8W5XVQOmxCfupBRND8ukV6fvq9ug/jU4uS5ugfZxZbHnMPe3JJlB0zjo/8V7wFVEBBs33zuakw78WJy/oiBUU4cWxf6f+wdx3qFqsJdsTgA9lBT9HzIqs7opcENMjBkrsByu+ZLNk7ffGxsic6kAO1Uklm4aZij+9a9Pvt/aUS+pkA1t9ZnqSPzEhgIcwUpHVCoCjkpSwAs9yrYjltUsC/o1qKqFZAmKJg6tMRpyqD6kMDBbDDTKZU4+60khItFC+nf6fDdWO86G5Cyt3GH7XMgo2NER08ZuwGko76DHd9eBlbSCTQNFsgEb8aVI5d/a2juCb8yiFvGVZBiMNG6xUeBdd1bXMYbZuhL/c6eMCoPglvUYEAAC4QDmbi2NgW0bfeRxOwQeiwTrJWUcCVHwc3wZupkiQYNZzMd+Qdse84RDEW14fCvEsBqF6OL4eti3WKff4GXRB8udq95s9heqOWlatvnoiUAIx/w6fnwPd8UX1nlriQwvItdekqX/jQQwwmc6UbWEI8ZMs4ee+Br49SI9XLaeqxnW7/jaES4Z9NpDagW7ggwIYDDT5HQatOREiEQ1rwxaeg38s=
+  - secure: bTAbPYOz3GedTf+4JKNfDai3kgs2PWv+NZFiWP0pZAjEYTEEn44/DF9SRBWkDKUOrtRXIqqOXUrEhQCh5pdQDUJjaKWvATRalsDi5iQ+DaXXfPArDmnuRxKjrj5SgM3YUNzfInFjCIPdBv5I75apZ3Wgxi/iNp9zYmp7yG56lyQNjeAQqjQn9QZMA/Xom5DICE6HWJY2S2TStiibXgSHBlA4gfG+n0HxVQPIFf11B0BYupC0SrG7y+GHXVIIhQGnT18lGFRET7+aAimYGaTJ/28fB/iPnSi38hhTQJWF32JHOrvKKzSd0ec43uSFTIU1rLmhPNYP4qmnfM9LuD8F4yJJcG5uwIBnyP/i4ZhiiABG+7wdQT0p+HGVJ24aP6+tDRx/noVnZsjDuiQb1kgr8BmVCuuva4sDVJxp0Co2CVzUWYiRkePyMjmdcSIrtjDH6XNubNDsE/Wv3m+6idRg1zl5q0fQuNnK+jFYNIF3TvOn7Y/hweMuhd3hJVBsZY4jmCliyPvYW7gqeNRgZ91Xp7p7dzE7NeHRd25k6fAwBihh3F3ZRJvRNzbRZrdZiGE75ApXpFq3p87FoNMnqxcww7MwfFCuHNm/PN1biaFvlbpfyliQ/v8GI123EBVKpzAOZnqO0C3SBVZmNw02Vun8wpz1WjCbtQ+D+6Ed0Y2f6HY=
+  - secure: mLaBOsyAR6CRY+jNew1cCksAVuueK6OIbfuHQSrs12AsDUNIXJlc8WMXsDbj7C/9pFkrC6N1T/95d6L2efUuQcMilgEai6NY8TRn2obfzZcGfI1AJsdsfjAe9e243nbT9gGLdBbrNPZHj4StloSKPUle3jmOXPP3mzUO0pa0G1DpElkzlqwwsTJs5ZLdSUNs2OgC19VQtIuRj9U9FbEGW05Yqvf2C1TZtRSlrP/82CUsSz38pw31I85rjjGibvYGkOpqiangk/W1G1Sm5TibmmPavgvFyxNJe+9XneYyjTNVGmlSYOeD8AC73v6v4NO5f5n/1MGryqN1rwzAnlPOY5lK3K2RwzXrBh6x7r/lgJyv0XTEDs8i22nObGX1Lgnl4pGJ9Qp+vZ2XPvQdQSydfWcqMGNTwU1JMzwzjuIr3kmwLJcH5S90wQ6glZvTATy1hszdzWuHKxotVFXT2VHexCC3v82X+0a8ffzK8AktlusFm5W5J+Jc6IDw21NJwjFTUdUvIw19/9Vnk9Ym+s9PlfsKWGwoadWW9jFsJEjAvOvyWqKbp2Hnh8z61pm/TMddU0hBU9G2XNkTc9WnZd068MFR5crif194DD7fd2yw2OBUBm9a7LukgWz72sRq3gTRDuPz5E7Y94Xv6sjJsnHKOtc9WiqJd4RhRr2Gmq8Xlfg=
+  - secure: JIiGacsMJBjRTFdsqnCeuDuCxZvVR/iXhx4XoyV7A5h1H5yAv3EKek/Iqtx0BKlE4Ij32sqG4UbY/go39PAybkL0bxe7PbhGkLFh9rMe/Bve9pa8WR3UrUy7+OlFH3p30eLArW4l836qN+J4tNXOykxQZASip877c31zqSecXcbZxSvkDtSk5xXlNgbrwZJJCtjn5U5P5vtn/1LhJuSNWIY7/3raFTqq+ISZcNJu3ndg5FJjYAOLU8se4XfeoUK/BvoFpYhq+0pJB8PGWnw8pl3LQSki74wI7T7/qWThW0OShfILy4LDqMly19b7cByFqaGntI5dQr1/J3ZWansyq217MH8/a3p9ZtgP2ALqtjoxOHtm3yEvAtgq0KX+ZDpXU4x5btd2uPUeQqF4/3PskE5QM2hIN30djaWH4t2PvBJP+nE7VgHAZCn8hqEnEwwZnXC3B/3FSaQ1HSyBKGNW00+WUgNA7wo8wg1SLiYL8DDoQ2fdTJ7famivF7d4oBEKrVhAd5AqK6BJB4BSDlRE4yZQnRXYXzKYq3LMnC02ANlajcoh/kaBb+vL53vhFCZz6lGyk0qXsf6T276IHGeaszkCDhlRrkKIiV+/nygZlHv/RRV+VX3ZuT+RPyJJSLv0RNW405q87VyKhQVPlfe9HJzECi3Nnd5F5Q522rJxmC8=

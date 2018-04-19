@@ -2,12 +2,6 @@ TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 SDK_ONLY_PKGS=$(shell go list ./... | grep -v "/vendor/")
 
-# Testing Auth
-export APIC_HOST=
-export APIC_USER=admin
-export APIC_PASS=
-export APIC_ALLOW_INSECURE=true
-
 default: build unit
 
 build: fmtcheck install

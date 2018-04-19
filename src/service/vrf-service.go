@@ -113,7 +113,7 @@ func (vs VRFService) fromDataArray(data []*gabs.Container) ([]*models.VRF, error
 }
 
 func (vs VRFService) fromJSON(data *gabs.Container) (*models.VRF, error) {
-	resourceAttributes, err := vs.fromJSONToAttributes(vs.ObjectClass, data)
+	mapped, err := vs.fromJSONToMap(models.NewVRFMap(), data)
 
 	if err != nil {
 		return nil, err
@@ -121,10 +121,5 @@ func (vs VRFService) fromJSON(data *gabs.Container) (*models.VRF, error) {
 
 	// TODO: process child collections
 
-	return &models.VRF{
-		resourceAttributes,
-		"",
-		"",
-		nil,
-	}, nil
+	return models.NewVRF(mapped), nil
 }

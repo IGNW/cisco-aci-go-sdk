@@ -117,20 +117,12 @@ func (es EPGService) fromDataArray(data []*gabs.Container) ([]*models.EPG, error
 }
 
 func (es EPGService) fromJSON(data *gabs.Container) (*models.EPG, error) {
-	resourceAttributes, err := es.fromJSONToAttributes(es.ObjectClass, data)
+	mapped, err := es.fromJSONToMap(models.NewEPGMap(), data)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// TODO: process child collections
-
-	return &models.EPG{
-		resourceAttributes,
-		false,
-		false,
-		"",
-		"",
-		"",
-	}, nil
+	return models.NewEPG(mapped), nil
 }

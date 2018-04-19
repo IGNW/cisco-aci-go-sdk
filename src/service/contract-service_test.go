@@ -15,6 +15,7 @@ type ContractServiceTestSuite struct {
 	client *Client
 }
 
+// TODO: Expand to include full contract with subject and filters
 func (suite *ContractServiceTestSuite) SetupTest() {
 
 	assert := assert.New(suite.T())
@@ -32,6 +33,9 @@ func (suite *ContractServiceTestSuite) SetupTest() {
 	assert.Nil(err)
 
 	c := suite.client.Contracts.New("IGNW-C1", "A testing contract made by IGNW")
+
+	c.DSCP = "unspecified"
+	c.Scope = "context"
 
 	ten.AddContract(c)
 
@@ -91,7 +95,7 @@ func (suite *ContractServiceTestSuite) TestContractServiceGetByName() {
 				ObjectClass:  "vzBrCP",
 				Status:       "",
 			},
-			"global",
+			"context",
 			"unspecified",
 			nil,
 			nil,
@@ -117,7 +121,7 @@ func (suite *ContractServiceTestSuite) TestContractServiceGetAll() {
 				ObjectClass:  "vzBrCP",
 				Status:       "",
 			},
-			"global",
+			"context",
 			"unspecified",
 			nil,
 			nil,

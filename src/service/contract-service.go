@@ -114,19 +114,12 @@ func (cs ContractService) fromDataArray(data []*gabs.Container) ([]*models.Contr
 }
 
 func (cs ContractService) fromJSON(data *gabs.Container) (*models.Contract, error) {
-	resourceAttributes, err := cs.fromJSONToAttributes(cs.ObjectClass, data)
+	mapped, err := cs.fromJSONToMap(models.NewContractMap(), data)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// TODO: process child collections
-
-	return &models.Contract{
-		resourceAttributes,
-		"",
-		"",
-		nil,
-		nil,
-	}, nil
+	return models.NewContract(mapped), nil
 }

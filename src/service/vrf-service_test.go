@@ -30,6 +30,8 @@ func (suite *VRFServiceTestSuite) SetupTest() {
 	assert.Nil(err)
 
 	v := client.VRFs.New("IGNW-V1", "A testing VRF made by IGNW")
+	v.Enforce = "unenforced"
+	v.EnforcementDirection = "ingress"
 
 	ten.AddVRF(v)
 
@@ -96,7 +98,7 @@ func (suite *VRFServiceTestSuite) TestVRFServiceGetByName() {
 			models.ResourceAttributes{
 				Name:         "IGNW-V1",
 				ResourceName: "ctx-IGNW-V1",
-				DomainName:   "uni/tn-IGNW-VT/C-IGNW-V1",
+				DomainName:   "uni/tn-IGNW-VT/ctx-IGNW-V1",
 				Description:  "A testing VRF made by IGNW",
 				ObjectClass:  "fvCtx",
 				Status:       "",
