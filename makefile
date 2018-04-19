@@ -24,6 +24,8 @@ integration: build
 install:
 	@echo "go get -t ./... [installing dependencies]"
 	@go get -t ./...
+	@echo "go get ... [installing test dependencies]"
+	@go get -t github.com/stretchr/testify
 
 vet:
 	@echo "go vet ."
