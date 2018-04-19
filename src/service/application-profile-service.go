@@ -123,7 +123,7 @@ func (aps AppProfileService) fromDataArray(data []*gabs.Container) ([]*models.Ap
 }
 
 func (aps AppProfileService) fromJSON(data *gabs.Container) (*models.AppProfile, error) {
-	resourceAttributes, err := aps.fromJSONToAttributes(aps.ObjectClass, data)
+	mapped, err := aps.fromJSONToMap(models.NewAppProfileMap(), data)
 
 	if err != nil {
 		return nil, err
@@ -131,8 +131,5 @@ func (aps AppProfileService) fromJSON(data *gabs.Container) (*models.AppProfile,
 
 	// TODO: process child collections
 
-	return &models.AppProfile{
-		resourceAttributes,
-		nil,
-	}, nil
+	return models.NewAppProfile(mapped), nil
 }

@@ -63,6 +63,22 @@ make integration
 APIC_HOST=https://host:port APIC_USER=admin APIC_PASS=password APIC_ALLOW_INSECURE=true make integration
 ```
 
+## CI/CD Builds
+
+The Travis CI builds will kick off on every commit and provide build and basic unit test feedback. On Pull Request and master branch build the SDK acceptance tests will run hitting the configured ACI endpoint.
+
+The following environment variable have been encrypted and added to `.travis.yml` and by default have been configured to hit the Cisco ACI Sandbox available through your DevNet account.
+
+See: [Cisco DevNet Sandbox](https://devnetsandbox.cisco.com)
+
+```bash
+travis encrypt APIC_HOST="" --add env.global
+travis encrypt APIC_USER="" --add env.global
+travis encrypt APIC_PASS="" --add env.global
+travis encrypt APIC_ALLOW_INSECURE="true" --add env.global
+```
+
+
 ## Getting Started
 
 The CAGE SDK provides a way to interact with Cisco ACI without knowing a lot about the underlying API and authentication schemes.  Currently,

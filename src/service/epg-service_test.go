@@ -1,5 +1,6 @@
-// +build integration-exclude
+// +build integration-eclude
 
+// TODO: This one requires the tree walker to sort out path from tenant/ap/epg
 package service
 
 import (
@@ -40,6 +41,12 @@ func (suite *EPGServiceTestSuite) SetupTest() {
 
 	e := suite.client.EPGs.New("IGNW-E1", "A testing EPG made by IGNW")
 
+	e.IsAttributeBased = true
+	e.IsMultiSite = true
+	e.PreferredPolicyControl = "enforced"
+	e.LabelMatchCriteria = "All"
+	e.IsPreferredGroupMember = "include"
+
 	ap.AddEPG(e)
 
 	err = suite.client.EPGs.Save(e)
@@ -54,7 +61,7 @@ func (suite *EPGServiceTestSuite) TearDownTest() {
 
 	assert.Nil(err)
 
-	err := suite.client.AppProfiles.Delete("uni/tn-IGNW-ET/AP-IGNW-AP2")
+	err = suite.client.AppProfiles.Delete("uni/tn-IGNW-ET/AP-IGNW-AP2")
 
 	assert.Nil(err)
 
@@ -102,8 +109,11 @@ func (suite *EPGServiceTestSuite) TestEPGServiceGetByName() {
 				ObjectClass:  "fvAEPg",
 				Status:       "",
 			},
-			nil,
-			nil,
+			true,
+			true,
+			"enforced",
+			"All",
+			"include",
 		})
 	}
 }
@@ -126,8 +136,11 @@ func (suite *EPGServiceTestSuite) TestEPGServiceGetAll() {
 				ObjectClass:  "fvAEPg",
 				Status:       "",
 			},
-			nil,
-			nil,
+			true,
+			true,
+			"enforced",
+			"All",
+			"include",
 		})
 
 	}
