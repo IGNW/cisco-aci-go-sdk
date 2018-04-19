@@ -2,7 +2,7 @@ TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 SDK_ONLY_PKGS=$(shell go list ./... | grep -v "/vendor/")
 
-default: build unit
+default: build
 
 build: fmtcheck install
 	@echo "go build SDK and install vendor packages"
