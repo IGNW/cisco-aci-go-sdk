@@ -91,7 +91,6 @@ func (suite *ApplicationProfileServiceTestSuite) TestApplicationProfileServiceGe
 				Status:       "",
 			},
 			nil,
-			nil,
 		})
 
 	}
@@ -115,7 +114,6 @@ func (suite *ApplicationProfileServiceTestSuite) TestApplicationProfileServiceGe
 				ObjectClass:  "fvAp",
 				Status:       "",
 			},
-			nil,
 			nil,
 		})
 	}

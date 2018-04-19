@@ -3,11 +3,9 @@
 package service
 
 import (
-	"fmt"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"strconv"
 	"testing"
 )
 

@@ -101,6 +101,8 @@ func (suite *VRFServiceTestSuite) TestVRFServiceGetByName() {
 				ObjectClass:  "fvCtx",
 				Status:       "",
 			},
+			"unenforced",
+			"ingress",
 			nil,
 		})
 	}
@@ -119,7 +121,7 @@ func (suite *VRFServiceTestSuite) TestVRFServiceGetAll() {
 
 	if assert.NotEmpty(data) {
 
-		assert.Contains(data, &models.AppProfile{
+		assert.Contains(data, &models.VRF{
 			models.ResourceAttributes{
 				Name:         "IGNW-V1",
 				ResourceName: "ctx-IGNW-V1",
@@ -128,10 +130,10 @@ func (suite *VRFServiceTestSuite) TestVRFServiceGetAll() {
 				ObjectClass:  "fvCtx",
 				Status:       "",
 			},
-			nil,
+			"unenforced",
+			"ingress",
 			nil,
 		})
-
 	}
 }
 

@@ -91,6 +91,8 @@ func (suite *ContractServiceTestSuite) TestContractServiceGetByName() {
 				ObjectClass:  "vzBrCP",
 				Status:       "",
 			},
+			"global",
+			"unspecified",
 			nil,
 			nil,
 		})
@@ -106,7 +108,7 @@ func (suite *ContractServiceTestSuite) TestContractServiceGetAll() {
 
 	if assert.NotEmpty(data) {
 
-		assert.Contains(data, &models.AppProfile{
+		assert.Contains(data, &models.Contract{
 			models.ResourceAttributes{
 				Name:         "IGNW-C1",
 				ResourceName: "brc-IGNW-C1",
@@ -115,6 +117,8 @@ func (suite *ContractServiceTestSuite) TestContractServiceGetAll() {
 				ObjectClass:  "vzBrCP",
 				Status:       "",
 			},
+			"global",
+			"unspecified",
 			nil,
 			nil,
 		})
