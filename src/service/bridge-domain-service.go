@@ -8,9 +8,6 @@ import (
 
 var bridgeDomainServiceInstance *BridgeDomainService
 
-const BD_RESOURCE_NAME_PREFIX = "BD"
-const BD_OBJECT_CLASS = "fvBD"
-
 type BridgeDomainService struct {
 	ResourceService
 }
@@ -18,8 +15,8 @@ type BridgeDomainService struct {
 func GetBridgeDomainService(client *Client) *BridgeDomainService {
 	if bridgeDomainServiceInstance == nil {
 		bridgeDomainServiceInstance = &BridgeDomainService{ResourceService{
-			ObjectClass:        BD_OBJECT_CLASS,
-			ResourceNamePrefix: BD_RESOURCE_NAME_PREFIX,
+			ObjectClass:        models.BD_OBJECT_CLASS,
+			ResourceNamePrefix: models.BD_RESOURCE_PREFIX,
 			HasParent:          true,
 		}}
 	}
@@ -33,7 +30,7 @@ func (bds BridgeDomainService) New(name string, description string) *models.Brid
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  BD_OBJECT_CLASS,
+		ObjectClass:  models.BD_OBJECT_CLASS,
 		ResourceName: bds.getResourceName(name),
 	},
 		"",

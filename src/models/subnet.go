@@ -2,6 +2,9 @@ package models
 
 import "strings"
 
+const SUBNET_RESOURCE_NAME_PREFIX = "subnet"
+const SUBNET_OBJECT_CLASS = "fvSubnet"
+
 // Represents an ACI Bridge Domain Subnet.
 // See: https://pubhub.devnetcloud.com/media/apic-mim-ref-311/docs/MO-fvSubnet.html
 type Subnet struct {
@@ -11,6 +14,18 @@ type Subnet struct {
 	Preferred bool
 	Scope     []string `oneof=public private shared`
 	Virtual   bool
+}
+
+func (s *Subnet) GetObjectClass() string {
+	return SUBNET_OBJECT_CLASS
+}
+
+func (s *Subnet) GetResourcePrefix() string {
+	return SUBNET_RESOURCE_NAME_PREFIX
+}
+
+func (s *Subnet) HasParent() bool {
+	return true
 }
 
 func (s *Subnet) ToMap() map[string]string {

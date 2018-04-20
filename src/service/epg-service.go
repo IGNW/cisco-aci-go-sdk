@@ -6,10 +6,6 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-// TODO: validate these settings are correct
-const E_RESOURCE_NAME_PREFIX = "epg"
-const E_OBJECT_CLASS = "fvAEPg"
-
 var epgServiceInstance *EPGService
 
 type EPGService struct {
@@ -19,8 +15,8 @@ type EPGService struct {
 func GetEPGService(client *Client) *EPGService {
 	if epgServiceInstance == nil {
 		epgServiceInstance = &EPGService{ResourceService{
-			ObjectClass:        E_OBJECT_CLASS,
-			ResourceNamePrefix: E_RESOURCE_NAME_PREFIX,
+			ObjectClass:        models.EPG_OBJECT_CLASS,
+			ResourceNamePrefix: models.EPG_RESOURCE_NAME_PREFIX,
 			HasParent:          true,
 		}}
 	}
@@ -34,7 +30,7 @@ func (es EPGService) New(name string, description string) *models.EPG {
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  E_OBJECT_CLASS,
+		ObjectClass:  models.EPG_OBJECT_CLASS,
 		ResourceName: es.getResourceName(name),
 	},
 		false,

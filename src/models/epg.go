@@ -1,5 +1,8 @@
 package models
 
+const EPG_RESOURCE_NAME_PREFIX = "epg"
+const EPG_OBJECT_CLASS = "fvAEPg"
+
 // Represents an ACI Endpoint Group (EPG).
 // See: https://pubhub.devnetcloud.com/media/apic-mim-ref-311/docs/MO-fvAEPg.html
 type EPG struct {
@@ -9,6 +12,18 @@ type EPG struct {
 	PreferredPolicyControl string `oneof=enforced unenforced`
 	LabelMatchCriteria     string `oneof=All AtleastOne AtmostOne None`
 	IsPreferredGroupMember string `oneof=include exclude`
+}
+
+func (e *EPG) GetObjectClass() string {
+	return EPG_OBJECT_CLASS
+}
+
+func (e *EPG) GetResourcePrefix() string {
+	return EPG_OBJECT_CLASS
+}
+
+func (e *EPG) HasParent() bool {
+	return true
 }
 
 func (e *EPG) ToMap() map[string]string {

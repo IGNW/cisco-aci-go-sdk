@@ -8,9 +8,6 @@ import (
 
 var tenantServiceInstance *TenantService
 
-const TN_RESOURCE_NAME_PREFIX = "tn"
-const TN_OBJECT_CLASS = "fvTenant"
-
 type TenantService struct {
 	ResourceService
 }
@@ -18,8 +15,8 @@ type TenantService struct {
 func GetTenantService(client *Client) *TenantService {
 	if tenantServiceInstance == nil {
 		tenantServiceInstance = &TenantService{ResourceService{
-			ObjectClass:        TN_OBJECT_CLASS,
-			ResourceNamePrefix: TN_RESOURCE_NAME_PREFIX,
+			ObjectClass:        models.TENANT_OBJECT_CLASS,
+			ResourceNamePrefix: models.TENANT_RESOURCE_PREFIX,
 			HasParent:          false,
 		}}
 	}
@@ -32,7 +29,7 @@ func (ts TenantService) New(name string, description string) *models.Tenant {
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  TN_OBJECT_CLASS,
+		ObjectClass:  models.TENANT_OBJECT_CLASS,
 		ResourceName: ts.getResourceName(name),
 	},
 		nil,

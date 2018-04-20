@@ -6,9 +6,6 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-const C_RESOURCE_NAME_PREFIX = "brc"
-const C_OBJECT_CLASS = "vzBrCP"
-
 var contractServiceInstance *ContractService
 
 type ContractService struct {
@@ -18,8 +15,8 @@ type ContractService struct {
 func GetContractService(client *Client) *ContractService {
 	if contractServiceInstance == nil {
 		contractServiceInstance = &ContractService{ResourceService{
-			ObjectClass:        C_OBJECT_CLASS,
-			ResourceNamePrefix: C_RESOURCE_NAME_PREFIX,
+			ObjectClass:        models.CONTRACT_OBJECT_CLASS,
+			ResourceNamePrefix: models.CONTRACT_RESOURCE_PREFIX,
 			HasParent:          true,
 		}}
 	}
@@ -33,7 +30,7 @@ func (cs ContractService) New(name string, description string) *models.Contract 
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  C_OBJECT_CLASS,
+		ObjectClass:  models.CONTRACT_OBJECT_CLASS,
 		ResourceName: cs.getResourceName(name),
 	},
 		"",

@@ -6,9 +6,6 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-const AP_RESOURCE_NAME_PREFIX = "ap"
-const AP_OBJECT_CLASS = "fvAp"
-
 var appProfileServiceInstance *AppProfileService
 
 type AppProfileService struct {
@@ -18,8 +15,8 @@ type AppProfileService struct {
 func GetAppProfileService(client *Client) *AppProfileService {
 	if appProfileServiceInstance == nil {
 		appProfileServiceInstance = &AppProfileService{ResourceService{
-			ObjectClass:        AP_OBJECT_CLASS,
-			ResourceNamePrefix: AP_RESOURCE_NAME_PREFIX,
+			ObjectClass:        models.AP_OBJECT_CLASS,
+			ResourceNamePrefix: models.AP_RESOURCE_PREFIX,
 			HasParent:          true,
 		}}
 	}
@@ -33,7 +30,7 @@ func (aps AppProfileService) New(name string, description string) *models.AppPro
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  AP_OBJECT_CLASS,
+		ObjectClass:  models.AP_OBJECT_CLASS,
 		ResourceName: aps.getResourceName(name),
 	},
 		nil,

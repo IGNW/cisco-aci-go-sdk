@@ -1,5 +1,8 @@
 package models
 
+const SUBJECT_RESOURCE_PREFIX = "subj"
+const SUBJECT_OBJECT_CLASS = "vzSubj"
+
 // Represents an ACI Contract Subject.
 // See: https://pubhub.devnetcloud.com/media/apic-mim-ref-311/docs/MO-vzSubj.html
 type Subject struct {
@@ -9,6 +12,18 @@ type Subject struct {
 	Priority           string `oneof=unspecified level1 level2 level3`
 	DSCP               string `oneof=unspecified CS0 CS1 AF11 AF12 AF13 CS2 AF21 AF22 AF23 CS3 AF31 AF32 AF33 CS4 AF41 AF42 AF43 CS5 VA EF CS6 CS7`
 	ReverseFilterPorts bool
+}
+
+func (s *Subject) GetObjectClass() string {
+	return SUBJECT_OBJECT_CLASS
+}
+
+func (s *Subject) GetResourcePrefix() string {
+	return SUBJECT_RESOURCE_PREFIX
+}
+
+func (s *Subject) HasParent() bool {
+	return true
 }
 
 func (s *Subject) ToMap() map[string]string {

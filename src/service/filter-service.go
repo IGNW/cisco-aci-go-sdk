@@ -6,9 +6,6 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-const F_RESOURCE_NAME_PREFIX = "flt"
-const F_OBJECT_CLASS = "vzFilter"
-
 var filterServiceInstance *FilterService
 
 type FilterService struct {
@@ -18,8 +15,8 @@ type FilterService struct {
 func GetFilterService(client *Client) *FilterService {
 	if filterServiceInstance == nil {
 		filterServiceInstance = &FilterService{ResourceService{
-			ObjectClass:        F_OBJECT_CLASS,
-			ResourceNamePrefix: F_RESOURCE_NAME_PREFIX,
+			ObjectClass:        models.FILTER_OBJECT_CLASS,
+			ResourceNamePrefix: models.FILTER_RESOURCE_PREFIX,
 			HasParent:          true,
 		}}
 	}
@@ -33,7 +30,7 @@ func (fs FilterService) New(name string, description string) *models.Filter {
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  F_OBJECT_CLASS,
+		ObjectClass:  models.FILTER_OBJECT_CLASS,
 		ResourceName: fs.getResourceName(name),
 	},
 		nil,

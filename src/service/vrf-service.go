@@ -6,9 +6,6 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-const V_RESOURCE_NAME_PREFIX = "ctx"
-const V_OBJECT_CLASS = "fvCtx"
-
 var vrfServiceInstance *VRFService
 
 type VRFService struct {
@@ -18,8 +15,8 @@ type VRFService struct {
 func GetVRFService(client *Client) *VRFService {
 	if vrfServiceInstance == nil {
 		vrfServiceInstance = &VRFService{ResourceService{
-			ObjectClass:        V_OBJECT_CLASS,
-			ResourceNamePrefix: V_RESOURCE_NAME_PREFIX,
+			ObjectClass:        models.VRF_OBJECT_CLASS,
+			ResourceNamePrefix: models.VRF_RESOURCE_PREFIX,
 			HasParent:          true,
 		}}
 	}
@@ -33,7 +30,7 @@ func (vs VRFService) New(name string, description string) *models.VRF {
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  V_OBJECT_CLASS,
+		ObjectClass:  models.VRF_OBJECT_CLASS,
 		ResourceName: vs.getResourceName(name),
 	},
 		"",

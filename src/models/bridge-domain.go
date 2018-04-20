@@ -1,43 +1,7 @@
 package models
 
-/*
-"OptimizeWanBandwidth": "no",
-			"arpFlood": "no",
-			"bcastP": "225.0.175.32",
-			"childAction": "",
-			"configIssues": "",
-			"descr": "",
-			"epClear": "no",
-			"epMoveDetectMode": "",
-			"extMngdBy": "",
-			"intersiteBumTrafficAllow": "no",
-			"intersiteL2Stretch": "no",
-			"ipLearning": "yes",
-			"lcOwn": "local",
-			"limitIpLearnToSubnets": "yes",
-			"llAddr": "::",
-			"mac": "00:22:BD:F8:19:FF",
-			"mcastAllow": "no",
-			"modTs": "2018-02-23T04:36:17.595+00:00",
-			"monPolDn": "uni/tn-common/monepg-default",
-			"mtu": "inherit",
-			"multiDstPktAct": "bd-flood",
-			"name": "IGNW_BD",
-			"nameAlias": "",
-			"ownerKey": "",
-			"ownerTag": "",
-			"pcTag": "32770",
-			"rn": "BD-IGNW_BD",
-			"scope": "2850818",
-			"seg": "16613251",
-			"status": "",
-			"type": "regular",
-			"uid": "15374",
-			"unicastRoute": "yes",
-			"unkMacUcastAct": "proxy",
-			"unkMcastAct": "flood",
-			"vmac": "not-applicable"
-*/
+const BD_RESOURCE_PREFIX = "BD"
+const BD_OBJECT_CLASS = "fvBD"
 
 // Represents an ACI Bridge Domain.
 // See: https://pubhub.devnetcloud.com/media/apic-mim-ref-311/docs/MO-fvBD.html
@@ -61,6 +25,18 @@ type BridgeDomain struct {
 	VirtualMAC               string
 	Subnets                  []*Subnet
 	EPGs                     []*EPG
+}
+
+func (bd *BridgeDomain) GetObjectClass() string {
+	return BD_OBJECT_CLASS
+}
+
+func (bd *BridgeDomain) GetResourcePrefix() string {
+	return BD_RESOURCE_PREFIX
+}
+
+func (bd *BridgeDomain) HasParent() bool {
+	return true
 }
 
 func (bd *BridgeDomain) ToMap() map[string]string {

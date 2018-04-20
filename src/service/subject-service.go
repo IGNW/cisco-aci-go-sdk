@@ -6,9 +6,6 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-const SJ_RESOURCE_NAME_PREFIX = "subj"
-const SJ_OBJECT_CLASS = "vzSubj"
-
 var subjectServiceInstance *SubjectService
 
 type SubjectService struct {
@@ -18,8 +15,8 @@ type SubjectService struct {
 func GetSubjectService(client *Client) *SubjectService {
 	if subjectServiceInstance == nil {
 		subjectServiceInstance = &SubjectService{ResourceService{
-			ObjectClass:        SJ_OBJECT_CLASS,
-			ResourceNamePrefix: SJ_RESOURCE_NAME_PREFIX,
+			ObjectClass:        models.SUBJECT_OBJECT_CLASS,
+			ResourceNamePrefix: models.SUBJECT_RESOURCE_PREFIX,
 			HasParent:          true,
 		}}
 	}
@@ -33,7 +30,7 @@ func (ss SubjectService) New(name string, description string) *models.Subject {
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  SJ_OBJECT_CLASS,
+		ObjectClass:  models.SUBJECT_OBJECT_CLASS,
 		ResourceName: ss.getResourceName(name),
 	},
 		"",

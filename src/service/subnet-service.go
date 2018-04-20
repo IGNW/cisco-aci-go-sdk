@@ -6,10 +6,6 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-// TODO: validate these settings are correct
-const SN_RESOURCE_NAME_PREFIX = "subnet"
-const SN_OBJECT_CLASS = "fvSubnet"
-
 var subnetServiceInstance *SubnetService
 
 type SubnetService struct {
@@ -19,8 +15,8 @@ type SubnetService struct {
 func GetSubnetService(client *Client) *SubnetService {
 	if subnetServiceInstance == nil {
 		subnetServiceInstance = &SubnetService{ResourceService{
-			ObjectClass:        SN_OBJECT_CLASS,
-			ResourceNamePrefix: SJ_RESOURCE_NAME_PREFIX,
+			ObjectClass:        models.SUBNET_OBJECT_CLASS,
+			ResourceNamePrefix: models.SUBNET_RESOURCE_NAME_PREFIX,
 			HasParent:          true,
 		}}
 	}
@@ -34,7 +30,7 @@ func (ss SubnetService) New(name string, description string) *models.Subnet {
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  SJ_OBJECT_CLASS,
+		ObjectClass:  models.SUBNET_OBJECT_CLASS,
 		ResourceName: ss.getResourceName(name),
 	},
 		"",
