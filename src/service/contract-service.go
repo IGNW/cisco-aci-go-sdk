@@ -17,7 +17,6 @@ func GetContractService(client *Client) *ContractService {
 		contractServiceInstance = &ContractService{ResourceService{
 			ObjectClass:        models.CONTRACT_OBJECT_CLASS,
 			ResourceNamePrefix: models.CONTRACT_RESOURCE_PREFIX,
-			HasParent:          true,
 		}}
 	}
 	return contractServiceInstance

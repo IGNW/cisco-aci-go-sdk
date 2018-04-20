@@ -1,6 +1,5 @@
 // +build integration-exclude
 
-// TODO: This one requires the tree walker to sort out path from tenant/ap/epg
 package service
 
 import (

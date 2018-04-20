@@ -17,7 +17,6 @@ func GetSubnetService(client *Client) *SubnetService {
 		subnetServiceInstance = &SubnetService{ResourceService{
 			ObjectClass:        models.SUBNET_OBJECT_CLASS,
 			ResourceNamePrefix: models.SUBNET_RESOURCE_NAME_PREFIX,
-			HasParent:          true,
 		}}
 	}
 	return subnetServiceInstance

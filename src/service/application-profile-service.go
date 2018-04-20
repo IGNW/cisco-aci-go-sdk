@@ -17,7 +17,6 @@ func GetAppProfileService(client *Client) *AppProfileService {
 		appProfileServiceInstance = &AppProfileService{ResourceService{
 			ObjectClass:        models.AP_OBJECT_CLASS,
 			ResourceNamePrefix: models.AP_RESOURCE_PREFIX,
-			HasParent:          true,
 		}}
 	}
 	return appProfileServiceInstance

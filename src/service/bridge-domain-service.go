@@ -17,7 +17,6 @@ func GetBridgeDomainService(client *Client) *BridgeDomainService {
 		bridgeDomainServiceInstance = &BridgeDomainService{ResourceService{
 			ObjectClass:        models.BD_OBJECT_CLASS,
 			ResourceNamePrefix: models.BD_RESOURCE_PREFIX,
-			HasParent:          true,
 		}}
 	}
 	return bridgeDomainServiceInstance

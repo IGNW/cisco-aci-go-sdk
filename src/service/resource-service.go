@@ -30,7 +30,6 @@ type ResourceDecoder func(*gabs.Container) (models.ResourceInterface, error)
 type ResourceService struct {
 	ObjectClass        string
 	ResourceNamePrefix string
-	HasParent          bool
 }
 
 func (s ResourceService) client() *Client {
@@ -39,7 +38,6 @@ func (s ResourceService) client() *Client {
 
 func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 	var path string
-	var parent models.ResourceInterface
 
 	// perform base validation
 	err = s.validate(r)
@@ -53,18 +51,7 @@ func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 
 	method := "POST"
 
-	// TODO: refactor to getResourcePath()
 	path = s.getResourcePath(r, "")
-
-	parent = r.GetParent()
-
-	if parent != nil {
-		path = fmt.Sprintf("/api/node/mo/uni/%s/%s.json", parent.GetResourceName(), r.GetResourceName())
-	} else {
-		path = fmt.Sprintf("/api/node/mo/uni/%s.json", r.GetResourceName())
-	}
-
-	// END Refactor
 
 	req, err := s.client().newAuthdRequest(method, path, json)
 	if err != nil {
@@ -335,17 +322,18 @@ func (s ResourceService) getResourcePath(model models.ResourceInterface, path st
 	const basePath = "/api/node/mo/uni/"
 	var parent models.ResourceInterface
 
-	if path == "" {
-		path = basePath
-	}
-
 	parent = model.GetParent()
 
+	if path == "" {
+		path = ".json"
+	}
+
 	if parent == nil {
-		path += model.GetResourceName() + ".json"
-		return path
+		path = model.GetResourceName() + path
+		return basePath + path
 	} else {
-		path += model.GetResourceName() + "/"
+
+		path = "/" + model.GetResourceName() + path
 		return s.getResourcePath(parent, path)
 	}
 }
@@ -353,7 +341,7 @@ func (s ResourceService) getResourcePath(model models.ResourceInterface, path st
 func (s ResourceService) validate(model models.ResourceInterface) error {
 	var err error
 
-	if s.HasParent && model.GetParent() == nil {
+	if model.HasParent() && model.GetParent() == nil {
 		err = fmt.Errorf("Models of type '%s' require a parent to be set", s.ObjectClass)
 	}
 

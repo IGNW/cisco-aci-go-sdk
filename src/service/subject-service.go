@@ -17,7 +17,6 @@ func GetSubjectService(client *Client) *SubjectService {
 		subjectServiceInstance = &SubjectService{ResourceService{
 			ObjectClass:        models.SUBJECT_OBJECT_CLASS,
 			ResourceNamePrefix: models.SUBJECT_RESOURCE_PREFIX,
-			HasParent:          true,
 		}}
 	}
 	return subjectServiceInstance

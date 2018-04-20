@@ -17,7 +17,6 @@ func GetFilterService(client *Client) *FilterService {
 		filterServiceInstance = &FilterService{ResourceService{
 			ObjectClass:        models.FILTER_OBJECT_CLASS,
 			ResourceNamePrefix: models.FILTER_RESOURCE_PREFIX,
-			HasParent:          true,
 		}}
 	}
 	return filterServiceInstance

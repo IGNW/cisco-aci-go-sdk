@@ -17,7 +17,6 @@ func GetTenantService(client *Client) *TenantService {
 		tenantServiceInstance = &TenantService{ResourceService{
 			ObjectClass:        models.TENANT_OBJECT_CLASS,
 			ResourceNamePrefix: models.TENANT_RESOURCE_PREFIX,
-			HasParent:          false,
 		}}
 	}
 	return tenantServiceInstance

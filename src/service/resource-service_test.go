@@ -1,4 +1,4 @@
-// +build integration-exclude
+// +build integration
 
 package service
 
@@ -31,9 +31,10 @@ func (suite *ResourceServiceTestSuite) Test_getResourcePath() {
 
 	service.ResourceNamePrefix = "yy"
 
-	t := models.Tenant{ResourceAttributes{
-		Name:   "IGNW-T1",
-		Status: "",
+	t := &models.Tenant{models.ResourceAttributes{
+		Name:         "IGNW-T1",
+		ResourceName: "t-IGNW-T1",
+		Status:       "",
 	},
 		nil,
 		nil,
@@ -42,27 +43,32 @@ func (suite *ResourceServiceTestSuite) Test_getResourcePath() {
 		nil,
 	}
 
-	ap := models.AppProfile{ResourceAttributes{
-		Name:   "IGNW-A1",
-		Status: "",
+	ap := &models.AppProfile{models.ResourceAttributes{
+		Name:         "IGNW-A1",
+		ResourceName: "ap-IGNW-A1",
+		Status:       "",
 	},
 		nil,
 	}
 
-	epg := models.EPG{ResourceAttributes{
-		Name:   "IGNW-EP1",
-		Status: "",
+	epg := &models.EPG{models.ResourceAttributes{
+		Name:         "IGNW-EP1",
+		ResourceName: "ep-IGNW-EP1",
+		Status:       "",
 	},
 		false,
 		false,
 		"",
 		"",
-		false,
+		"",
 	}
 
-	assert.Equal("", service.getResourcePath(t))
-	assert.Equal("", service.getResourcePath(ap))
-	assert.Equal("", service.getResourcePath(epg))
+	t.AddAppProfile(ap)
+	ap.AddEPG(epg)
+
+	assert.Equal("/api/node/mo/uni/t-IGNW-T1.json", service.getResourcePath(t, ""))
+	assert.Equal("/api/node/mo/uni/t-IGNW-T1/ap-IGNW-A1.json", service.getResourcePath(ap, ""))
+	assert.Equal("/api/node/mo/uni/t-IGNW-T1/ap-IGNW-A1/ep-IGNW-EP1.json", service.getResourcePath(epg, ""))
 }
 
 func TestResourceServiceTestSuite(t *testing.T) {

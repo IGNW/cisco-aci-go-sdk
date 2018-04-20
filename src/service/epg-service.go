@@ -17,7 +17,6 @@ func GetEPGService(client *Client) *EPGService {
 		epgServiceInstance = &EPGService{ResourceService{
 			ObjectClass:        models.EPG_OBJECT_CLASS,
 			ResourceNamePrefix: models.EPG_RESOURCE_NAME_PREFIX,
-			HasParent:          true,
 		}}
 	}
 	return epgServiceInstance

@@ -17,7 +17,6 @@ func GetVRFService(client *Client) *VRFService {
 		vrfServiceInstance = &VRFService{ResourceService{
 			ObjectClass:        models.VRF_OBJECT_CLASS,
 			ResourceNamePrefix: models.VRF_RESOURCE_PREFIX,
-			HasParent:          true,
 		}}
 	}
 	return vrfServiceInstance
