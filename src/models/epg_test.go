@@ -16,20 +16,18 @@ func (suite *EPGTestSuite) TestEPGToMap() {
 	assert := assert.New(suite.T())
 
 	epgMap := map[string]string{
-		"dn":                  "",
-		"status":              "",
-		"descr":               "",
-		"name":                "TestEPGMap",
-		"isAttrBasedEPg":      "yes",
-		"isSharedSrvMsiteEPg": "yes",
-		"pcEnfPref":           "enforced",
-		"prefGrMemb":          "include",
-		"matchT":              "All",
+		"dn":             "",
+		"status":         "",
+		"descr":          "",
+		"name":           "TestEPGMap",
+		"isAttrBasedEPg": "yes",
+		"pcEnfPref":      "enforced",
+		"prefGrMemb":     "include",
+		"matchT":         "All",
 	}
 
 	epg := EPG{
 		ResourceAttributes{Name: "TestEPGMap"},
-		true,
 		true,
 		"enforced",
 		"All",
@@ -48,7 +46,6 @@ func (suite *EPGTestSuite) TestNewEPGFromDefaults() {
 	expected := EPG{
 		ResourceAttributes{Name: ""},
 		false,
-		false,
 		"unenforced",
 		"AtleastOne",
 		"exclude",
@@ -61,20 +58,18 @@ func (suite *EPGTestSuite) TestNewEPGFromMap() {
 	assert := assert.New(suite.T())
 
 	epgMap := map[string]string{
-		"dn":                  "",
-		"status":              "",
-		"descr":               "",
-		"name":                "TestEPGMap",
-		"isAttrBasedEPg":      "yes",
-		"isSharedSrvMsiteEPg": "yes",
-		"pcEnfPref":           "enforced",
-		"prefGrMemb":          "include",
-		"matchT":              "All",
+		"dn":             "",
+		"status":         "",
+		"descr":          "",
+		"name":           "TestEPGMap",
+		"isAttrBasedEPg": "yes",
+		"pcEnfPref":      "enforced",
+		"prefGrMemb":     "include",
+		"matchT":         "All",
 	}
 
 	assert.Equal(&EPG{
 		ResourceAttributes{Name: "TestEPGMap"},
-		true,
 		true,
 		"enforced",
 		"All",

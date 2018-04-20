@@ -23,17 +23,6 @@ func (f *Filter) HasParent() bool {
 	return true
 }
 
-// Represents an ACI Contract Filter Entry.
-// https://pubhub.devnetcloud.com/media/apic-mim-ref-311/docs/MO-vzEntry.html
-type Entry struct {
-	Protocol           string
-	Source, Desination ToFrom
-}
-
-type ToFrom struct {
-	To, From string
-}
-
 func (f *Filter) ToMap() map[string]string {
 	var model = f.ResourceAttributes.ToMap()
 	return model
