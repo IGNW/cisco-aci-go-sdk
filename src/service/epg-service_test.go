@@ -1,4 +1,4 @@
-// +build integration-exclude
+// +build integration
 
 package service
 
@@ -41,7 +41,6 @@ func (suite *EPGServiceTestSuite) SetupTest() {
 	e := suite.client.EPGs.New("IGNW-E1", "A testing EPG made by IGNW")
 
 	e.IsAttributeBased = true
-	e.IsMultiSite = true
 	e.PreferredPolicyControl = "enforced"
 	e.LabelMatchCriteria = "All"
 	e.IsPreferredGroupMember = "include"
@@ -56,11 +55,11 @@ func (suite *EPGServiceTestSuite) SetupTest() {
 func (suite *EPGServiceTestSuite) TearDownTest() {
 	assert := assert.New(suite.T())
 
-	err := suite.client.EPGs.Delete("uni/tn-IGNW-ET/AP-IGNW-AP2/epg-IGNW-E1")
+	err := suite.client.EPGs.Delete("uni/tn-IGNW-ET/ap-IGNW-AP2/epg-IGNW-E1")
 
 	assert.Nil(err)
 
-	err = suite.client.AppProfiles.Delete("uni/tn-IGNW-ET/AP-IGNW-AP2")
+	err = suite.client.AppProfiles.Delete("uni/tn-IGNW-ET/ap-IGNW-AP2")
 
 	assert.Nil(err)
 
@@ -72,7 +71,7 @@ func (suite *EPGServiceTestSuite) TearDownTest() {
 func (suite *EPGServiceTestSuite) TestEPGServiceGet() {
 	assert := assert.New(suite.T())
 
-	e, err := suite.client.EPGs.Get("uni/tn-IGNW-ET/AP-IGNW-AP2/epg-IGNW-E1")
+	e, err := suite.client.EPGs.Get("uni/tn-IGNW-ET/ap-IGNW-AP2/epg-IGNW-E1")
 
 	assert.Nil(err)
 
@@ -80,7 +79,7 @@ func (suite *EPGServiceTestSuite) TestEPGServiceGet() {
 
 		assert.Equal("IGNW-E1", e.Name)
 		assert.Equal("epg-IGNW-E1", e.ResourceName)
-		assert.Equal("uni/tn-IGNW-ET/AP-IGNW-AP2/epg-IGNW-E1", e.DomainName)
+		assert.Equal("uni/tn-IGNW-ET/ap-IGNW-AP2/epg-IGNW-E1", e.DomainName)
 		assert.Equal("A testing EPG made by IGNW", e.Description)
 		assert.Empty(e.Status)
 
@@ -103,12 +102,11 @@ func (suite *EPGServiceTestSuite) TestEPGServiceGetByName() {
 			models.ResourceAttributes{
 				Name:         "IGNW-E1",
 				ResourceName: "epg-IGNW-E1",
-				DomainName:   "uni/tn-IGNW-ET/AP-IGNW-AP2/epg-IGNW-E1",
+				DomainName:   "uni/tn-IGNW-ET/ap-IGNW-AP2/epg-IGNW-E1",
 				Description:  "A testing EPG made by IGNW",
 				ObjectClass:  "fvAEPg",
 				Status:       "",
 			},
-			true,
 			true,
 			"enforced",
 			"All",
@@ -130,12 +128,11 @@ func (suite *EPGServiceTestSuite) TestEPGServiceGetAll() {
 			models.ResourceAttributes{
 				Name:         "IGNW-E1",
 				ResourceName: "epg-IGNW-E1",
-				DomainName:   "uni/tn-IGNW-ET/AP-IGNW-AP2/epg-IGNW-E1",
+				DomainName:   "uni/tn-IGNW-ET/ap-IGNW-AP2/epg-IGNW-E1",
 				Description:  "A testing EPG made by IGNW",
 				ObjectClass:  "fvAEPg",
 				Status:       "",
 			},
-			true,
 			true,
 			"enforced",
 			"All",

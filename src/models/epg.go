@@ -8,7 +8,6 @@ const EPG_OBJECT_CLASS = "fvAEPg"
 type EPG struct {
 	ResourceAttributes
 	IsAttributeBased       bool
-	IsMultiSite            bool
 	PreferredPolicyControl string `oneof=enforced unenforced`
 	LabelMatchCriteria     string `oneof=All AtleastOne AtmostOne None`
 	IsPreferredGroupMember string `oneof=include exclude`
@@ -31,8 +30,6 @@ func (e *EPG) ToMap() map[string]string {
 
 	model["isAttrBasedEPg"] = e.FormatBool(e.IsAttributeBased)
 
-	model["isSharedSrvMsiteEPg"] = e.FormatBool(e.IsMultiSite)
-
 	// The preferred policy control.
 	model["pcEnfPref"] = e.PreferredPolicyControl
 
@@ -50,15 +47,12 @@ func NewEPG(model map[string]string) *EPG {
 
 	e := EPG{NewResourceAttributes(model),
 		false,
-		false,
 		"",
 		"",
 		"",
 	}
 
 	e.IsAttributeBased = e.ParseBool(model["isAttrBasedEPg"])
-
-	e.IsMultiSite = e.ParseBool(model["isSharedSrvMsiteEPg"])
 
 	// The preferred policy control.
 	e.PreferredPolicyControl = model["pcEnfPref"]
@@ -78,43 +72,9 @@ func NewEPGMap() map[string]string {
 	m := NewResourceAttributesMap()
 
 	m["isAttrBasedEPg"] = "no"
-	m["isSharedSrvMsiteEPg"] = "no"
 	m["pcEnfPref"] = "unenforced"
 	m["matchT"] = "AtleastOne"
 	m["prefGrMemb"] = "exclude"
 
 	return m
 }
-
-//EPG has no objects it owns or relates to according to our model
-
-/*
-{
-	"fvAEPg": {
-		"attributes": {
-			"childAction": "",
-			"configIssues": "",
-			"configSt": "applied",
-			"descr": "",
-			"extMngdBy": "",
-			"fwdCtrl": "",
-			"isAttrBasedEPg": "no",
-			"isSharedSrvMsiteEPg": "no",
-			"lcOwn": "local",
-			"matchT": "AtleastOne",
-			"modTs": "2018-02-23T04:36:27.126+00:00",
-			"monPolDn": "uni/tn-common/monepg-default",
-			"name": "server",
-			"nameAlias": "",
-			"pcEnfPref": "unenforced",
-			"pcTag": "32773",
-			"prefGrMemb": "exclude",
-			"prio": "unspecified",
-			"rn": "epg-server",
-			"scope": "2850818",
-			"status": "",
-			"triggerSt": "triggerable",
-			"txId": "9223372036854797235",
-			"uid": "15374"
-		},
-*/

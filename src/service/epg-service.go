@@ -33,7 +33,6 @@ func (es EPGService) New(name string, description string) *models.EPG {
 		ResourceName: es.getResourceName(name),
 	},
 		false,
-		false,
 		"",
 		"",
 		"",

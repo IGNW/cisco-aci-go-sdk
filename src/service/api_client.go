@@ -156,6 +156,8 @@ func (c *Client) newRequest(method string, path string, body *gabs.Container) (*
 		return nil, err
 	}
 
+	log.Infof("\nHTTP Body: %s ", body.String())
+
 	u := c.BaseURL.ResolveReference(rel)
 	bodyBytes := []byte(body.String())
 

@@ -57,7 +57,6 @@ func (suite *ResourceServiceTestSuite) Test_getResourcePath() {
 		Status:       "",
 	},
 		false,
-		false,
 		"",
 		"",
 		"",
