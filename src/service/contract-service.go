@@ -8,10 +8,12 @@ import (
 
 var contractServiceInstance *ContractService
 
+// ContractService is used to manage Contract resources.
 type ContractService struct {
 	ResourceService
 }
 
+// GetContractService will construct or return the singleton for the ContractService.
 func GetContractService(client *Client) *ContractService {
 	if contractServiceInstance == nil {
 		contractServiceInstance = &ContractService{ResourceService{
@@ -22,7 +24,7 @@ func GetContractService(client *Client) *ContractService {
 	return contractServiceInstance
 }
 
-/* New creates a new Contract with the appropriate default values */
+// New creates a new Contract with the appropriate default values.
 func (cs ContractService) New(name string, description string) *models.Contract {
 
 	b := models.Contract{models.ResourceAttributes{
@@ -41,6 +43,7 @@ func (cs ContractService) New(name string, description string) *models.Contract 
 	return &b
 }
 
+// Save a new Contract or update an existing one.
 func (cs ContractService) Save(c *models.Contract) error {
 
 	err := cs.ResourceService.Save(c)
@@ -52,6 +55,7 @@ func (cs ContractService) Save(c *models.Contract) error {
 
 }
 
+// Get will retrieve an Contract by it's domain name.
 func (cs ContractService) Get(domainName string) (*models.Contract, error) {
 
 	data, err := cs.ResourceService.Get(domainName)
@@ -69,6 +73,7 @@ func (cs ContractService) Get(domainName string) (*models.Contract, error) {
 	return newContract, nil
 }
 
+// GetByName will retrieve Contract(s) by common name.
 func (cs ContractService) GetByName(name string) ([]*models.Contract, error) {
 
 	data, err := cs.ResourceService.GetByName(name)
@@ -79,6 +84,7 @@ func (cs ContractService) GetByName(name string) ([]*models.Contract, error) {
 	return cs.fromDataArray(data)
 }
 
+// GetByName will retrieve all Contract(s).
 func (cs ContractService) GetAll() ([]*models.Contract, error) {
 
 	data, err := cs.ResourceService.GetAll()
@@ -89,6 +95,7 @@ func (cs ContractService) GetAll() ([]*models.Contract, error) {
 	return cs.fromDataArray(data)
 }
 
+// fromDataArray will convert an array of gabs.Container (JSON) to Contract(s)
 func (cs ContractService) fromDataArray(data []*gabs.Container) ([]*models.Contract, error) {
 	var contracts []*models.Contract
 	var err, errors error
@@ -109,6 +116,7 @@ func (cs ContractService) fromDataArray(data []*gabs.Container) ([]*models.Contr
 	return contracts, err
 }
 
+// fromJSON will convert a gabs.Container (JSON) to Contract
 func (cs ContractService) fromJSON(data *gabs.Container) (*models.Contract, error) {
 	mapped, err := cs.fromJSONToMap(models.NewContractMap(), data)
 

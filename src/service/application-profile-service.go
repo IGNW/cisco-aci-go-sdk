@@ -8,10 +8,12 @@ import (
 
 var appProfileServiceInstance *AppProfileService
 
+// AppProfileService is used to manage AppProfile resources.
 type AppProfileService struct {
 	ResourceService
 }
 
+// GetAppProfileService will construct or return the singleton for the AppProfileService.
 func GetAppProfileService(client *Client) *AppProfileService {
 	if appProfileServiceInstance == nil {
 		appProfileServiceInstance = &AppProfileService{ResourceService{
@@ -22,7 +24,7 @@ func GetAppProfileService(client *Client) *AppProfileService {
 	return appProfileServiceInstance
 }
 
-/* New creates a new AppProfile with the appropriate default values */
+// New creates a new AppProfile with the appropriate default values.
 func (aps AppProfileService) New(name string, description string) *models.AppProfile {
 
 	a := models.AppProfile{models.ResourceAttributes{
@@ -38,6 +40,7 @@ func (aps AppProfileService) New(name string, description string) *models.AppPro
 	return &a
 }
 
+// Save a new AppProfile or update an existing one.
 func (aps AppProfileService) Save(t *models.AppProfile) error {
 
 	err := aps.ResourceService.Save(t)
@@ -49,6 +52,7 @@ func (aps AppProfileService) Save(t *models.AppProfile) error {
 
 }
 
+// Get will retrieve an AppProfile by it's domain name.
 func (aps AppProfileService) Get(domainName string) (*models.AppProfile, error) {
 
 	data, err := aps.ResourceService.Get(domainName)
@@ -66,6 +70,7 @@ func (aps AppProfileService) Get(domainName string) (*models.AppProfile, error) 
 	return newAppProfile, nil
 }
 
+// GetById will retrieve an AppProfile by it's unique identifier.
 func (aps AppProfileService) GetById(id string) (*models.AppProfile, error) {
 
 	data, err := aps.ResourceService.GetById(id)
@@ -77,6 +82,7 @@ func (aps AppProfileService) GetById(id string) (*models.AppProfile, error) {
 	return aps.fromJSON(data)
 }
 
+// GetByName will retrieve AppProfile(s) by common name.
 func (aps AppProfileService) GetByName(name string) ([]*models.AppProfile, error) {
 
 	data, err := aps.ResourceService.GetByName(name)
@@ -88,6 +94,7 @@ func (aps AppProfileService) GetByName(name string) ([]*models.AppProfile, error
 	return aps.fromDataArray(data)
 }
 
+// GetByName will retrieve all AppProfile(s).
 func (aps AppProfileService) GetAll() ([]*models.AppProfile, error) {
 
 	data, err := aps.ResourceService.GetAll()
@@ -98,6 +105,7 @@ func (aps AppProfileService) GetAll() ([]*models.AppProfile, error) {
 	return aps.fromDataArray(data)
 }
 
+// fromDataArray will convert an array of gabs.Container (JSON) to AppProfile(s)
 func (aps AppProfileService) fromDataArray(data []*gabs.Container) ([]*models.AppProfile, error) {
 	var appProfiles []*models.AppProfile
 	var err, errors error
@@ -118,6 +126,7 @@ func (aps AppProfileService) fromDataArray(data []*gabs.Container) ([]*models.Ap
 	return appProfiles, err
 }
 
+// fromJSON will convert a gabs.Container (JSON) to AppProfile
 func (aps AppProfileService) fromJSON(data *gabs.Container) (*models.AppProfile, error) {
 	mapped, err := aps.fromJSONToMap(models.NewAppProfileMap(), data)
 
@@ -126,6 +135,5 @@ func (aps AppProfileService) fromJSON(data *gabs.Container) (*models.AppProfile,
 	}
 
 	// TODO: process child collections
-
 	return models.NewAppProfile(mapped), nil
 }

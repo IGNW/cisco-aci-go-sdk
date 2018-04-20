@@ -116,21 +116,13 @@ func (ts TenantService) fromDataArray(data []*gabs.Container) ([]*models.Tenant,
 
 func (ts TenantService) fromJSON(data *gabs.Container) (*models.Tenant, error) {
 
-	resourceAttributes, err := ts.fromJSONToAttributes(ts.ObjectClass, data)
+	mapped, err := ts.fromJSONToMap(models.NewTenantMap(), data)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// TODO: process child collections
-
-	return &models.Tenant{
-		resourceAttributes,
-		nil,
-		nil,
-		nil,
-		nil,
-		nil,
-	}, nil
+	return models.NewTenant(mapped), nil
 
 }

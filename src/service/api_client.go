@@ -16,7 +16,7 @@ import (
 	"strconv"
 )
 
-// Represents a way to connect to the Cisco ACI API
+// Client should be used to interact with the ACI Endpoint.
 type Client struct {
 	BaseURL    *url.URL
 	UserAgent  string
@@ -29,6 +29,7 @@ type Client struct {
 
 var clientInstance *Client
 
+// InitializeClient will instantiate a new Client that has been authenticated for working with ACI.
 func InitializeClient(apicURL string, user string, pass string, insecure bool) *Client {
 	clientURL, err := url.Parse(apicURL)
 	if err != nil {
@@ -73,6 +74,7 @@ func InitializeClient(apicURL string, user string, pass string, insecure bool) *
 	return clientInstance
 }
 
+// GetClient will get the singleton instance or instantiate a new Client and cache it to a singleton.
 func GetClient() *Client {
 	if clientInstance == nil {
 		host, name, pass, insecure, err := LookupClientEnvars()
@@ -87,6 +89,7 @@ func GetClient() *Client {
 	return clientInstance
 }
 
+// LookupClientEnvars will configure the Client based on environment variables.
 func LookupClientEnvars() (host string, user string, pass string, insecure bool, err error) {
 
 	var exists bool
@@ -149,6 +152,7 @@ func (c *Client) useInsecureHTTPClient() {
 
 }
 
+// newRequest will create a new HTTP request will all the appropriate headers and will automatically convert your gabs.Container payload to a JSON byte stream.
 func (c *Client) newRequest(method string, path string, body *gabs.Container) (*http.Request, error) {
 
 	rel, err := url.Parse(path)
@@ -179,6 +183,7 @@ func (c *Client) newRequest(method string, path string, body *gabs.Container) (*
 	return req, nil
 }
 
+// newRequest will create a new HTTP request with authentication headers and and will automatically convert your gabs.Container payload to a JSON byte stream.
 func (c Client) newAuthdRequest(method string, path string, body *gabs.Container) (*http.Request, error) {
 	if c.AuthToken != nil && !c.AuthToken.IsValid() {
 		err := c.Authenticate()
@@ -197,6 +202,7 @@ func (c Client) newAuthdRequest(method string, path string, body *gabs.Container
 	return req, nil
 }
 
+// do  will execute the supplied request using the Client and return the result as a gabs.Container, the HTTP response and optionally an error.
 func (c *Client) do(req *http.Request) (*gabs.Container, *http.Response, error) {
 
 	resp, err := c.httpClient.Do(req)
@@ -220,7 +226,7 @@ func (c *Client) do(req *http.Request) (*gabs.Container, *http.Response, error) 
 	return data, resp, err
 }
 
-// Authenticate makes a login request with the provided name and password
+// Authenticate will create a new ACI auth session based on the login name and password provided. It will then parse the token and store it on the Client for future API calls.
 func (c *Client) Authenticate() error {
 	// @TODO break this into a few smaller private methods
 	json, err := gabs.ParseJSON([]byte(`{

@@ -8,10 +8,12 @@ import (
 
 var entryServiceInstance *EntryService
 
+// EntryService is used to manage Entry resources.
 type EntryService struct {
 	ResourceService
 }
 
+// GetEntryService will construct or return the singleton for the EntryService.
 func GetEntryService(client *Client) *EntryService {
 	if entryServiceInstance == nil {
 		entryServiceInstance = &EntryService{ResourceService{
@@ -48,6 +50,7 @@ func (es EntryService) New(name string, description string) *models.Entry {
 	return &e
 }
 
+// Save a new Entry or update an existing one.
 func (es EntryService) Save(e *models.Entry) error {
 
 	err := es.ResourceService.Save(e)
@@ -59,6 +62,7 @@ func (es EntryService) Save(e *models.Entry) error {
 
 }
 
+// Get will retrieve an Entry by it's domain name.
 func (es EntryService) Get(domainName string) (*models.Entry, error) {
 
 	data, err := es.ResourceService.Get(domainName)
@@ -76,6 +80,19 @@ func (es EntryService) Get(domainName string) (*models.Entry, error) {
 	return newFilter, nil
 }
 
+// GetById will retrieve an Entry by it's unique identifier.
+func (es EntryService) GetById(id string) (*models.Entry, error) {
+
+	data, err := es.ResourceService.GetById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return es.fromJSON(data)
+}
+
+// GetByName will retrieve Entries by common name.
 func (es EntryService) GetByName(name string) ([]*models.Entry, error) {
 
 	data, err := es.ResourceService.GetByName(name)
@@ -86,6 +103,7 @@ func (es EntryService) GetByName(name string) ([]*models.Entry, error) {
 	return es.fromDataArray(data)
 }
 
+// GetByName will retrieve all Entries.
 func (es EntryService) GetAll() ([]*models.Entry, error) {
 
 	data, err := es.ResourceService.GetAll()
@@ -96,6 +114,7 @@ func (es EntryService) GetAll() ([]*models.Entry, error) {
 	return es.fromDataArray(data)
 }
 
+// fromDataArray will convert an array of gabs.Container (JSON) to Entries
 func (es EntryService) fromDataArray(data []*gabs.Container) ([]*models.Entry, error) {
 	var entries []*models.Entry
 	var err, errors error
@@ -116,6 +135,7 @@ func (es EntryService) fromDataArray(data []*gabs.Container) ([]*models.Entry, e
 	return entries, err
 }
 
+// fromJSON will convert a gabs.Container (JSON) to Entry
 func (es EntryService) fromJSON(data *gabs.Container) (*models.Entry, error) {
 	mapped, err := es.fromJSONToMap(models.NewEntryMap(), data)
 

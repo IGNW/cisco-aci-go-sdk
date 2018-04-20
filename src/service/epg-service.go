@@ -8,10 +8,12 @@ import (
 
 var epgServiceInstance *EPGService
 
+// EPGService is used to manage EPG resources.
 type EPGService struct {
 	ResourceService
 }
 
+// GetEPGService will construct or return the singleton for the EPGService.
 func GetEPGService(client *Client) *EPGService {
 	if epgServiceInstance == nil {
 		epgServiceInstance = &EPGService{ResourceService{
@@ -22,7 +24,7 @@ func GetEPGService(client *Client) *EPGService {
 	return epgServiceInstance
 }
 
-/* New creates a new EPG  with the appropriate default values */
+// New creates a new EPG  with the appropriate default values.
 func (es EPGService) New(name string, description string) *models.EPG {
 
 	e := models.EPG{models.ResourceAttributes{
@@ -42,6 +44,7 @@ func (es EPGService) New(name string, description string) *models.EPG {
 	return &e
 }
 
+// Save a new EPG or update an existing one.
 func (es EPGService) Save(c *models.EPG) error {
 
 	err := es.ResourceService.Save(c)
@@ -53,6 +56,7 @@ func (es EPGService) Save(c *models.EPG) error {
 
 }
 
+// Get will retrieve an EPG by it's domain name.
 func (es EPGService) Get(domainName string) (*models.EPG, error) {
 
 	data, err := es.ResourceService.Get(domainName)
@@ -70,6 +74,19 @@ func (es EPGService) Get(domainName string) (*models.EPG, error) {
 	return newEPG, nil
 }
 
+// GetById will retrieve an EPG by it's unique identifier.
+func (es EPGService) GetById(id string) (*models.EPG, error) {
+
+	data, err := es.ResourceService.GetById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return es.fromJSON(data)
+}
+
+// GetByName will retrieve EPG(s) by common name.
 func (es EPGService) GetByName(name string) ([]*models.EPG, error) {
 
 	data, err := es.ResourceService.GetByName(name)
@@ -80,6 +97,7 @@ func (es EPGService) GetByName(name string) ([]*models.EPG, error) {
 	return es.fromDataArray(data)
 }
 
+// GetByName will retrieve all EPG(s).
 func (es EPGService) GetAll() ([]*models.EPG, error) {
 
 	data, err := es.ResourceService.GetAll()
@@ -90,6 +108,7 @@ func (es EPGService) GetAll() ([]*models.EPG, error) {
 	return es.fromDataArray(data)
 }
 
+// fromDataArray will convert an array of gabs.Container (JSON) to EPG(s)
 func (es EPGService) fromDataArray(data []*gabs.Container) ([]*models.EPG, error) {
 	var epgs []*models.EPG
 	var err, errors error
@@ -110,6 +129,7 @@ func (es EPGService) fromDataArray(data []*gabs.Container) ([]*models.EPG, error
 	return epgs, err
 }
 
+// fromJSON will convert a gabs.Container (JSON) to EPG
 func (es EPGService) fromJSON(data *gabs.Container) (*models.EPG, error) {
 	mapped, err := es.fromJSONToMap(models.NewEPGMap(), data)
 
