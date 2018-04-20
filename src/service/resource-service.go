@@ -19,6 +19,7 @@ type Services struct {
 	VRFs          *VRFService
 	EPGs          *EPGService
 	Filters       *FilterService
+	Entries       *EntryService
 	Subjects      *SubjectService
 	Subnets       *SubnetService
 	Tenants       *TenantService

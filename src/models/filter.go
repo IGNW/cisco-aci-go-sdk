@@ -54,7 +54,8 @@ func (f *Filter) AddSubject(s *Subject) *Filter {
 }
 
 // AddSubject adds a Subject to the Filters Subject list and sets the Parent prop of the Subject to the Filter it was called from
-func (f *Filter) AddEntry(s *Entry) *Filter {
-	f.Entries = append(f.Entries, s)
+func (f *Filter) AddEntry(e *Entry) *Filter {
+	e.SetParent(f)
+	f.Entries = append(f.Entries, e)
 	return f
 }

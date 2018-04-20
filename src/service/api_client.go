@@ -52,6 +52,7 @@ func InitializeClient(apicURL string, user string, pass string, insecure bool) *
 			VRFs:          GetVRFService(clientInstance),
 			EPGs:          GetEPGService(clientInstance),
 			Filters:       GetFilterService(clientInstance),
+			Entries:       GetEntryService(clientInstance),
 			Subjects:      GetSubjectService(clientInstance),
 			Subnets:       GetSubnetService(clientInstance),
 			Tenants:       GetTenantService(clientInstance),
