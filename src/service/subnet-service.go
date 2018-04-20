@@ -32,10 +32,10 @@ func (ss SubnetService) New(name string, description string) *models.Subnet {
 		ObjectClass:  models.SUBNET_OBJECT_CLASS,
 		ResourceName: ss.getResourceName(name),
 	},
-		"",
+		"nd",
 		"",
 		false,
-		nil,
+		[]string{"private"},
 		false,
 	}
 
@@ -45,7 +45,11 @@ func (ss SubnetService) New(name string, description string) *models.Subnet {
 
 func (ss SubnetService) Save(s *models.Subnet) error {
 
+	// HACK: fix resource name this one has a difference scheme than all the others
+	s.ResourceName = s.GetResourceName()
+
 	err := ss.ResourceService.Save(s)
+
 	if err != nil {
 		return err
 	}
@@ -112,18 +116,11 @@ func (ss SubnetService) fromDataArray(data []*gabs.Container) ([]*models.Subnet,
 }
 
 func (ss SubnetService) fromJSON(data *gabs.Container) (*models.Subnet, error) {
-	resourceAttributes, err := ss.fromJSONToAttributes(ss.ObjectClass, data)
+	mapped, err := ss.fromJSONToMap(models.NewSubnetMap(), data)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &models.Subnet{
-		resourceAttributes,
-		"",
-		"",
-		false,
-		nil,
-		false,
-	}, nil
+	return models.NewSubnet(mapped), nil
 }

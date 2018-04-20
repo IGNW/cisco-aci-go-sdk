@@ -120,7 +120,7 @@ func NewBridgeDomainMap() map[string]string {
 	m["ipLearning"] = "yes"
 	m["limitIpLearnToSubnets"] = "yes"
 	m["llAddr"] = ""
-	m["mac"] = "280487012409856"
+	m["mac"] = "00:22:BD:F8:19:FF"
 	m["multiDstPktAct"] = "bd-flood"
 	m["mcastAllow"] = "no"
 	m["unicastRoute"] = "yes"
