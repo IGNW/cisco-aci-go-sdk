@@ -32,8 +32,8 @@ func (cs ContractService) New(name string, description string) *models.Contract 
 		ObjectClass:  models.CONTRACT_OBJECT_CLASS,
 		ResourceName: cs.getResourceName(name),
 	},
-		"",
-		"",
+		"context",
+		"unspecified",
 		nil,
 		nil,
 	}

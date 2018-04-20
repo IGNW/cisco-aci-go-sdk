@@ -32,11 +32,11 @@ func (ss SubjectService) New(name string, description string) *models.Subject {
 		ObjectClass:  models.SUBJECT_OBJECT_CLASS,
 		ResourceName: ss.getResourceName(name),
 	},
-		"",
-		"",
-		"",
-		"",
-		false,
+		"AtleastOne",
+		"AtleastOne",
+		"unspecified",
+		"unspecified",
+		true,
 	}
 
 	//Do any additional construction logic here.
@@ -113,18 +113,11 @@ func (ss SubjectService) fromDataArray(data []*gabs.Container) ([]*models.Subjec
 
 func (ss SubjectService) fromJSON(data *gabs.Container) (*models.Subject, error) {
 
-	resourceAttributes, err := ss.fromJSONToAttributes(ss.ObjectClass, data)
+	mapped, err := ss.fromJSONToMap(models.NewSubjectMap(), data)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &models.Subject{
-		resourceAttributes,
-		"",
-		"",
-		"",
-		"",
-		false,
-	}, nil
+	return models.NewSubject(mapped), nil
 }
