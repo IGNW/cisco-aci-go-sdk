@@ -26,7 +26,7 @@ func (suite *SubnetServiceTestSuite) SetupTest() {
 
 	assert.NotNil(ten)
 
-	err := suite.client.Tenants.Save(ten)
+	_, err := suite.client.Tenants.Save(ten)
 
 	assert.Nil(err)
 
@@ -34,7 +34,7 @@ func (suite *SubnetServiceTestSuite) SetupTest() {
 
 	ten.AddBridgeDomain(bd)
 
-	err = suite.client.BridgeDomains.Save(bd)
+	_, err = suite.client.BridgeDomains.Save(bd)
 
 	assert.Nil(err)
 
@@ -44,7 +44,7 @@ func (suite *SubnetServiceTestSuite) SetupTest() {
 
 	bd.AddSubnet(s)
 
-	err = suite.client.Subnets.Save(s)
+	_, err = suite.client.Subnets.Save(s)
 
 	assert.Nil(err)
 }

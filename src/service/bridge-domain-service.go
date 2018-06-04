@@ -59,14 +59,14 @@ func (bds BridgeDomainService) New(name string, description string) *models.Brid
 }
 
 // Save a new BridgeDomain or update an existing one.
-func (bds BridgeDomainService) Save(t *models.BridgeDomain) error {
+func (bds BridgeDomainService) Save(t *models.BridgeDomain) (string, error) {
 
-	err := bds.ResourceService.Save(t)
+	dn, err := bds.ResourceService.Save(t)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 

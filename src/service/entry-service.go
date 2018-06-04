@@ -51,14 +51,14 @@ func (es EntryService) New(name string, description string) *models.Entry {
 }
 
 // Save a new Entry or update an existing one.
-func (es EntryService) Save(e *models.Entry) error {
+func (es EntryService) Save(e *models.Entry) (string, error) {
 
-	err := es.ResourceService.Save(e)
+	dn, err := es.ResourceService.Save(e)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 

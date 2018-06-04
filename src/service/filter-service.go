@@ -42,14 +42,14 @@ func (fs FilterService) New(name string, description string) *models.Filter {
 }
 
 // Save a new Filter or update an existing one.
-func (fs FilterService) Save(f *models.Filter) error {
+func (fs FilterService) Save(f *models.Filter) (string, error) {
 
-	err := fs.ResourceService.Save(f)
+	dn, err := fs.ResourceService.Save(f)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 

@@ -41,14 +41,14 @@ func (ts TenantService) New(name string, description string) *models.Tenant {
 	return &t
 }
 
-func (ts TenantService) Save(t *models.Tenant) error {
+func (ts TenantService) Save(t *models.Tenant) (string, error) {
 
-	err := ts.ResourceService.Save(t)
+	dn, err := ts.ResourceService.Save(t)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 

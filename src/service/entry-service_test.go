@@ -28,7 +28,7 @@ func (suite *EntryServiceTestSuite) SetupTest() {
 
 	assert.NotNil(ten)
 
-	err := suite.client.Tenants.Save(ten)
+	_, err := suite.client.Tenants.Save(ten)
 
 	assert.Nil(err)
 
@@ -36,7 +36,7 @@ func (suite *EntryServiceTestSuite) SetupTest() {
 
 	ten.AddFilter(f)
 
-	err = suite.client.Filters.Save(f)
+	_, err = suite.client.Filters.Save(f)
 
 	assert.Nil(err)
 
@@ -59,7 +59,7 @@ func (suite *EntryServiceTestSuite) SetupTest() {
 
 	f.AddEntry(e)
 
-	err = suite.client.Entries.Save(e)
+	_, err = suite.client.Entries.Save(e)
 
 	assert.Nil(err)
 }

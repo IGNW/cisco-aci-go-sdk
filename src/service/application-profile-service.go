@@ -41,14 +41,14 @@ func (aps AppProfileService) New(name string, description string) *models.AppPro
 }
 
 // Save a new AppProfile or update an existing one.
-func (aps AppProfileService) Save(t *models.AppProfile) error {
+func (aps AppProfileService) Save(t *models.AppProfile) (string, error) {
 
-	err := aps.ResourceService.Save(t)
+	dn, err := aps.ResourceService.Save(t)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 

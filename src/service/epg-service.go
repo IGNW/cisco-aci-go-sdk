@@ -45,14 +45,14 @@ func (es EPGService) New(name string, description string) *models.EPG {
 }
 
 // Save a new EPG or update an existing one.
-func (es EPGService) Save(c *models.EPG) error {
+func (es EPGService) Save(c *models.EPG) (string, error) {
 
-	err := es.ResourceService.Save(c)
+	dn, err := es.ResourceService.Save(c)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 

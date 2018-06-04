@@ -27,7 +27,7 @@ func (suite *TenantServiceTestSuite) SetupSuite() {
 
 	assert.NotNil(ten)
 
-	err := suite.client.Tenants.Save(ten)
+	_, err := suite.client.Tenants.Save(ten)
 
 	assert.Nil(err)
 }

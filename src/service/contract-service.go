@@ -44,14 +44,14 @@ func (cs ContractService) New(name string, description string) *models.Contract 
 }
 
 // Save a new Contract or update an existing one.
-func (cs ContractService) Save(c *models.Contract) error {
+func (cs ContractService) Save(c *models.Contract) (string, error) {
 
-	err := cs.ResourceService.Save(c)
+	dn, err := cs.ResourceService.Save(c)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 

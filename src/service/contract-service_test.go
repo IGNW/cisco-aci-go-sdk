@@ -28,7 +28,7 @@ func (suite *ContractServiceTestSuite) SetupTest() {
 
 	assert.NotNil(ten)
 
-	err := suite.client.Tenants.Save(ten)
+	_, err := suite.client.Tenants.Save(ten)
 
 	assert.Nil(err)
 
@@ -39,7 +39,7 @@ func (suite *ContractServiceTestSuite) SetupTest() {
 
 	ten.AddContract(c)
 
-	err = suite.client.Contracts.Save(c)
+	_, err = suite.client.Contracts.Save(c)
 
 	assert.Nil(err)
 }

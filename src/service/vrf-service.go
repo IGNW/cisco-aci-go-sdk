@@ -40,14 +40,14 @@ func (vs VRFService) New(name string, description string) *models.VRF {
 	return &t
 }
 
-func (vs VRFService) Save(v *models.VRF) error {
+func (vs VRFService) Save(v *models.VRF) (string, error) {
 
-	err := vs.ResourceService.Save(v)
+	dn, err := vs.ResourceService.Save(v)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 

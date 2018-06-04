@@ -26,7 +26,7 @@ func (suite *ApplicationProfileServiceTestSuite) SetupTest() {
 
 	assert.NotNil(ten)
 
-	err := suite.client.Tenants.Save(ten)
+	_, err := suite.client.Tenants.Save(ten)
 
 	assert.Nil(err)
 
@@ -34,7 +34,7 @@ func (suite *ApplicationProfileServiceTestSuite) SetupTest() {
 
 	ten.AddAppProfile(ap)
 
-	err = suite.client.AppProfiles.Save(ap)
+	_, err = suite.client.AppProfiles.Save(ap)
 
 	assert.Nil(err)
 }

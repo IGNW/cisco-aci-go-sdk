@@ -31,19 +31,31 @@ type ResourceService struct {
 	ResourceNamePrefix string
 }
 
+/*
+type Service interface {
+	Save(r models.ResourceInterface) (dn string, err error)
+	Get(domainName string) (*gabs.Container, error)
+	GetById(id string) (*gabs.Container, error)
+	GetByName(name string) ([]*gabs.Container, error)
+	GetAll() ([]*gabs.Container, error)
+	Delete(domainName string) error
+}
+*/
+
 // client is a convience method to grab the ACI client from within a resource service.
 func (s ResourceService) client() *Client {
 	return GetClient()
 }
 
 // Save will create a new resource or update an existing resource.
-func (s ResourceService) Save(r models.ResourceInterface) (err error) {
+// Returns domain name on success, error on failure
+func (s ResourceService) Save(r models.ResourceInterface) (dn string, err error) {
 	var path string
 
 	// perform base validation
 	err = s.validate(r)
 	if err != nil {
-		return fmt.Errorf("\nGot Error While Validating, Auth'd Request failed w/ %v", err)
+		return "", fmt.Errorf("\nGot Error While Validating, Auth'd Request failed w/ %v", err)
 	}
 
 	json, err := s.toJSON(r)
@@ -56,7 +68,7 @@ func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 
 	req, err := s.client().newAuthdRequest(method, path, json)
 	if err != nil {
-		return fmt.Errorf("\nGot Error While Saving, Auth'd Request failed w/ %v", err)
+		return "", fmt.Errorf("\nGot Error While Saving, Auth'd Request failed w/ %v", err)
 	}
 
 	data, response, err := s.client().do(req)
@@ -65,14 +77,16 @@ func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 	log.Infof("DATA: %#v\n\n", data)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if err = s.getACIError(data); err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	dn = strings.TrimSuffix(strings.TrimPrefix(path, "/api/node/mo/"), ".json")
+
+	return dn, nil
 }
 
 // Get will retrieve a resource by complete domain name.

@@ -43,14 +43,14 @@ func (ss SubjectService) New(name string, description string) *models.Subject {
 	return &s
 }
 
-func (ss SubjectService) Save(s *models.Subject) error {
+func (ss SubjectService) Save(s *models.Subject) (string, error) {
 
-	err := ss.ResourceService.Save(s)
+	dn, err := ss.ResourceService.Save(s)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 
