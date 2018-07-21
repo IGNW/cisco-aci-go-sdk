@@ -25,7 +25,7 @@ func (suite *VRFServiceTestSuite) SetupTest() {
 
 	assert.NotNil(ten)
 
-	err := client.Tenants.Save(ten)
+	_, err := client.Tenants.Save(ten)
 
 	assert.Nil(err)
 
@@ -35,7 +35,7 @@ func (suite *VRFServiceTestSuite) SetupTest() {
 
 	ten.AddVRF(v)
 
-	err = client.VRFs.Save(v)
+	_, err = client.VRFs.Save(v)
 
 	assert.Nil(err)
 }

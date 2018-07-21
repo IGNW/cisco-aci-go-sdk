@@ -1,5 +1,8 @@
 package models
 
+const TENANT_RESOURCE_PREFIX = "tn"
+const TENANT_OBJECT_CLASS = "fvTenant"
+
 // Represents an ACI Tenant.
 type Tenant struct {
 	ResourceAttributes
@@ -10,8 +13,20 @@ type Tenant struct {
 	Filters       []*Filter
 }
 
-func (s *Tenant) ToMap() map[string]string {
-	var model = s.ResourceAttributes.ToMap()
+func (t *Tenant) GetObjectClass() string {
+	return TENANT_OBJECT_CLASS
+}
+
+func (t *Tenant) GetResourcePrefix() string {
+	return TENANT_RESOURCE_PREFIX
+}
+
+func (t *Tenant) HasParent() bool {
+	return false
+}
+
+func (t *Tenant) ToMap() map[string]string {
+	var model = t.ResourceAttributes.ToMap()
 	return model
 }
 

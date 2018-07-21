@@ -6,21 +6,19 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-const F_RESOURCE_NAME_PREFIX = "flt"
-const F_OBJECT_CLASS = "vzFilter"
-
 var filterServiceInstance *FilterService
 
+// FilterService is used to manage Filter resources.
 type FilterService struct {
 	ResourceService
 }
 
+// GetFilterService will construct or return the singleton for the FilterService.
 func GetFilterService(client *Client) *FilterService {
 	if filterServiceInstance == nil {
 		filterServiceInstance = &FilterService{ResourceService{
-			ObjectClass:        F_OBJECT_CLASS,
-			ResourceNamePrefix: F_RESOURCE_NAME_PREFIX,
-			HasParent:          true,
+			ObjectClass:        models.FILTER_OBJECT_CLASS,
+			ResourceNamePrefix: models.FILTER_RESOURCE_PREFIX,
 		}}
 	}
 	return filterServiceInstance
@@ -33,7 +31,7 @@ func (fs FilterService) New(name string, description string) *models.Filter {
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  F_OBJECT_CLASS,
+		ObjectClass:  models.FILTER_OBJECT_CLASS,
 		ResourceName: fs.getResourceName(name),
 	},
 		nil,
@@ -43,17 +41,19 @@ func (fs FilterService) New(name string, description string) *models.Filter {
 	return &b
 }
 
-func (fs FilterService) Save(f *models.Filter) error {
+// Save a new Filter or update an existing one.
+func (fs FilterService) Save(f *models.Filter) (string, error) {
 
-	err := fs.ResourceService.Save(f)
+	dn, err := fs.ResourceService.Save(f)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 
+// Get will retrieve an Filter by it's domain name.
 func (fs FilterService) Get(domainName string) (*models.Filter, error) {
 
 	data, err := fs.ResourceService.Get(domainName)
@@ -71,6 +71,10 @@ func (fs FilterService) Get(domainName string) (*models.Filter, error) {
 	return newFilter, nil
 }
 
+// GetById will retrieve an Filter by it's unique identifier.
+//TODO: Add
+
+// GetByName will retrieve Filter(s) by common name.
 func (fs FilterService) GetByName(name string) ([]*models.Filter, error) {
 
 	data, err := fs.ResourceService.GetByName(name)
@@ -81,6 +85,7 @@ func (fs FilterService) GetByName(name string) ([]*models.Filter, error) {
 	return fs.fromDataArray(data)
 }
 
+// GetByName will retrieve all Filter(s).
 func (fs FilterService) GetAll() ([]*models.Filter, error) {
 
 	data, err := fs.ResourceService.GetAll()
@@ -91,6 +96,7 @@ func (fs FilterService) GetAll() ([]*models.Filter, error) {
 	return fs.fromDataArray(data)
 }
 
+// fromDataArray will convert an array of gabs.Container (JSON) to Filter(s)
 func (fs FilterService) fromDataArray(data []*gabs.Container) ([]*models.Filter, error) {
 	var epgs []*models.Filter
 	var err, errors error
@@ -111,18 +117,14 @@ func (fs FilterService) fromDataArray(data []*gabs.Container) ([]*models.Filter,
 	return epgs, err
 }
 
+// fromJSON will convert a gabs.Container (JSON) to Filter
 func (fs FilterService) fromJSON(data *gabs.Container) (*models.Filter, error) {
-	resourceAttributes, err := fs.fromJSONToAttributes(fs.ObjectClass, data)
+	mapped, err := fs.fromJSONToMap(models.NewFilterMap(), data)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// TODO: process child collections
-
-	return &models.Filter{
-		resourceAttributes,
-		nil,
-		nil,
-	}, nil
+	return models.NewFilter(mapped), nil
 }

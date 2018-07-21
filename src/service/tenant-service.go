@@ -8,9 +8,6 @@ import (
 
 var tenantServiceInstance *TenantService
 
-const TN_RESOURCE_NAME_PREFIX = "tn"
-const TN_OBJECT_CLASS = "fvTenant"
-
 type TenantService struct {
 	ResourceService
 }
@@ -18,9 +15,8 @@ type TenantService struct {
 func GetTenantService(client *Client) *TenantService {
 	if tenantServiceInstance == nil {
 		tenantServiceInstance = &TenantService{ResourceService{
-			ObjectClass:        TN_OBJECT_CLASS,
-			ResourceNamePrefix: TN_RESOURCE_NAME_PREFIX,
-			HasParent:          false,
+			ObjectClass:        models.TENANT_OBJECT_CLASS,
+			ResourceNamePrefix: models.TENANT_RESOURCE_PREFIX,
 		}}
 	}
 	return tenantServiceInstance
@@ -32,7 +28,7 @@ func (ts TenantService) New(name string, description string) *models.Tenant {
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  TN_OBJECT_CLASS,
+		ObjectClass:  models.TENANT_OBJECT_CLASS,
 		ResourceName: ts.getResourceName(name),
 	},
 		nil,
@@ -45,14 +41,14 @@ func (ts TenantService) New(name string, description string) *models.Tenant {
 	return &t
 }
 
-func (ts TenantService) Save(t *models.Tenant) error {
+func (ts TenantService) Save(t *models.Tenant) (string, error) {
 
-	err := ts.ResourceService.Save(t)
+	dn, err := ts.ResourceService.Save(t)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 
@@ -120,21 +116,13 @@ func (ts TenantService) fromDataArray(data []*gabs.Container) ([]*models.Tenant,
 
 func (ts TenantService) fromJSON(data *gabs.Container) (*models.Tenant, error) {
 
-	resourceAttributes, err := ts.fromJSONToAttributes(ts.ObjectClass, data)
+	mapped, err := ts.fromJSONToMap(models.NewTenantMap(), data)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// TODO: process child collections
-
-	return &models.Tenant{
-		resourceAttributes,
-		nil,
-		nil,
-		nil,
-		nil,
-		nil,
-	}, nil
+	return models.NewTenant(mapped), nil
 
 }

@@ -80,7 +80,7 @@ func (suite *BridgeDomainTestSuite) TestNewBridgeDomainFromDefaults() {
 		true,
 		true,
 		"",
-		"280487012409856",
+		"00:22:BD:F8:19:FF",
 		"bd-flood",
 		false,
 		true,

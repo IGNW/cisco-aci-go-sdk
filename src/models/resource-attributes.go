@@ -21,9 +21,24 @@ type ResourceAttributes struct {
 which can be used as an argument type in a method
 */
 type ResourceInterface interface {
+	GetObjectClass() string
+	GetResourcePrefix() string
 	GetResourceName() string
+	HasParent() bool
 	GetParent() ResourceInterface
 	ToMap() map[string]string
+}
+
+func (r ResourceAttributes) GetObjectClass() string {
+	return ""
+}
+
+func (r ResourceAttributes) GetResourcePrefix() string {
+	return ""
+}
+
+func (r ResourceAttributes) HasParent() bool {
+	return false
 }
 
 // Convert ResourceAttributes model to a string map.

@@ -1,6 +1,12 @@
 package models
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
+
+const SUBNET_RESOURCE_NAME_PREFIX = "subnet"
+const SUBNET_OBJECT_CLASS = "fvSubnet"
 
 // Represents an ACI Bridge Domain Subnet.
 // See: https://pubhub.devnetcloud.com/media/apic-mim-ref-311/docs/MO-fvSubnet.html
@@ -11,6 +17,23 @@ type Subnet struct {
 	Preferred bool
 	Scope     []string `oneof=public private shared`
 	Virtual   bool
+}
+
+func (s *Subnet) GetObjectClass() string {
+	return SUBNET_OBJECT_CLASS
+}
+
+func (s *Subnet) GetResourcePrefix() string {
+	return SUBNET_RESOURCE_NAME_PREFIX
+}
+
+func (s *Subnet) HasParent() bool {
+	return true
+}
+
+func (s *Subnet) GetResourceName() string {
+	resourceName := fmt.Sprintf("%s-[%s]", s.GetResourcePrefix(), s.IpAddress)
+	return resourceName
 }
 
 func (s *Subnet) ToMap() map[string]string {
@@ -58,6 +81,8 @@ func NewSubnet(model map[string]string) *Subnet {
 	// Treated as virtual IP address. Used in case of BD extended to multiple sites.
 	s.Virtual = s.ParseBool(model["virtual"])
 
+	s.ResourceName = s.GetResourceName()
+
 	return &s
 }
 
@@ -70,29 +95,7 @@ func NewSubnetMap() map[string]string {
 	m["ip"] = ""
 	m["preferred"] = "no"
 	m["scope"] = "private"
+	m["virtual"] = "no"
 
 	return m
 }
-
-/*
-"fvSubnet": {
-	"attributes": {
-		"childAction": "",
-		"ctrl": "nd",
-		"descr": "",
-		"extMngdBy": "",
-		"ip": "192.168.101.1/24",
-		"lcOwn": "local",
-		"modTs": "2018-02-23T04:36:17.500+00:00",
-		"monPolDn": "uni/tn-common/monepg-default",
-		"name": "VLAN",
-		"nameAlias": "",
-		"preferred": "no",
-		"rn": "subnet-[192.168.101.1/24]",
-		"scope": "private",
-		"status": "",
-		"uid": "15374",
-		"virtual": "no"
-	}
-}
-*/

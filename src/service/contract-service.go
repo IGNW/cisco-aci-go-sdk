@@ -6,38 +6,36 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-const C_RESOURCE_NAME_PREFIX = "brc"
-const C_OBJECT_CLASS = "vzBrCP"
-
 var contractServiceInstance *ContractService
 
+// ContractService is used to manage Contract resources.
 type ContractService struct {
 	ResourceService
 }
 
+// GetContractService will construct or return the singleton for the ContractService.
 func GetContractService(client *Client) *ContractService {
 	if contractServiceInstance == nil {
 		contractServiceInstance = &ContractService{ResourceService{
-			ObjectClass:        C_OBJECT_CLASS,
-			ResourceNamePrefix: C_RESOURCE_NAME_PREFIX,
-			HasParent:          true,
+			ObjectClass:        models.CONTRACT_OBJECT_CLASS,
+			ResourceNamePrefix: models.CONTRACT_RESOURCE_PREFIX,
 		}}
 	}
 	return contractServiceInstance
 }
 
-/* New creates a new Contract with the appropriate default values */
+// New creates a new Contract with the appropriate default values.
 func (cs ContractService) New(name string, description string) *models.Contract {
 
 	b := models.Contract{models.ResourceAttributes{
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  C_OBJECT_CLASS,
+		ObjectClass:  models.CONTRACT_OBJECT_CLASS,
 		ResourceName: cs.getResourceName(name),
 	},
-		"",
-		"",
+		"context",
+		"unspecified",
 		nil,
 		nil,
 	}
@@ -45,17 +43,19 @@ func (cs ContractService) New(name string, description string) *models.Contract 
 	return &b
 }
 
-func (cs ContractService) Save(c *models.Contract) error {
+// Save a new Contract or update an existing one.
+func (cs ContractService) Save(c *models.Contract) (string, error) {
 
-	err := cs.ResourceService.Save(c)
+	dn, err := cs.ResourceService.Save(c)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 
+// Get will retrieve an Contract by it's domain name.
 func (cs ContractService) Get(domainName string) (*models.Contract, error) {
 
 	data, err := cs.ResourceService.Get(domainName)
@@ -73,6 +73,7 @@ func (cs ContractService) Get(domainName string) (*models.Contract, error) {
 	return newContract, nil
 }
 
+// GetByName will retrieve Contract(s) by common name.
 func (cs ContractService) GetByName(name string) ([]*models.Contract, error) {
 
 	data, err := cs.ResourceService.GetByName(name)
@@ -83,6 +84,7 @@ func (cs ContractService) GetByName(name string) ([]*models.Contract, error) {
 	return cs.fromDataArray(data)
 }
 
+// GetByName will retrieve all Contract(s).
 func (cs ContractService) GetAll() ([]*models.Contract, error) {
 
 	data, err := cs.ResourceService.GetAll()
@@ -93,6 +95,7 @@ func (cs ContractService) GetAll() ([]*models.Contract, error) {
 	return cs.fromDataArray(data)
 }
 
+// fromDataArray will convert an array of gabs.Container (JSON) to Contract(s)
 func (cs ContractService) fromDataArray(data []*gabs.Container) ([]*models.Contract, error) {
 	var contracts []*models.Contract
 	var err, errors error
@@ -113,6 +116,7 @@ func (cs ContractService) fromDataArray(data []*gabs.Container) ([]*models.Contr
 	return contracts, err
 }
 
+// fromJSON will convert a gabs.Container (JSON) to Contract
 func (cs ContractService) fromJSON(data *gabs.Container) (*models.Contract, error) {
 	mapped, err := cs.fromJSONToMap(models.NewContractMap(), data)
 

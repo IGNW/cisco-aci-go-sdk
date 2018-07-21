@@ -1,5 +1,8 @@
 package models
 
+const CONTRACT_RESOURCE_PREFIX = "brc"
+const CONTRACT_OBJECT_CLASS = "vzBrCP"
+
 // Represents an ACI Contract.
 // See: https://pubhub.devnetcloud.com/media/apic-mim-ref-311/docs/MO-vzBrCP.html
 type Contract struct {
@@ -8,6 +11,18 @@ type Contract struct {
 	DSCP     string `oneof=unspecified CS0 CS1 AF11 AF12 AF13 CS2 AF21 AF22 AF23 CS3 AF31 AF32 AF33 CS4 AF41 AF42 AF43 CS5 VA EF CS6 CS7`
 	Subjects []*Subject
 	EPGs     []*EPG
+}
+
+func (c *Contract) GetObjectClass() string {
+	return CONTRACT_OBJECT_CLASS
+}
+
+func (c *Contract) GetResourcePrefix() string {
+	return CONTRACT_RESOURCE_PREFIX
+}
+
+func (c *Contract) HasParent() bool {
+	return true
 }
 
 func (c *Contract) ToMap() map[string]string {

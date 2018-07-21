@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-// Services represents a collection of service objects within the client
-// will acess.client().AppProfiles ...
+// Services represents a collection of service objects used to interact with the ACI API via the Client.
+// e.g. GetClient().AppProfiles ...
 type Services struct {
 	AppProfiles   *AppProfileService
 	BridgeDomains *BridgeDomainService
@@ -19,32 +19,43 @@ type Services struct {
 	VRFs          *VRFService
 	EPGs          *EPGService
 	Filters       *FilterService
+	Entries       *EntryService
 	Subjects      *SubjectService
 	Subnets       *SubnetService
 	Tenants       *TenantService
 }
 
-type ResourceGenerator func(string, string, string) models.ResourceInterface
-type ResourceDecoder func(*gabs.Container) (models.ResourceInterface, error)
-
+// ResourceService provides a base resource service for perfoming core actions like Get, Save, Delete.
 type ResourceService struct {
 	ObjectClass        string
 	ResourceNamePrefix string
-	HasParent          bool
 }
 
+/*
+type Service interface {
+	Save(r models.ResourceInterface) (dn string, err error)
+	Get(domainName string) (*gabs.Container, error)
+	GetById(id string) (*gabs.Container, error)
+	GetByName(name string) ([]*gabs.Container, error)
+	GetAll() ([]*gabs.Container, error)
+	Delete(domainName string) error
+}
+*/
+
+// client is a convience method to grab the ACI client from within a resource service.
 func (s ResourceService) client() *Client {
 	return GetClient()
 }
 
-func (s ResourceService) Save(r models.ResourceInterface) (err error) {
+// Save will create a new resource or update an existing resource.
+// Returns domain name on success, error on failure
+func (s ResourceService) Save(r models.ResourceInterface) (dn string, err error) {
 	var path string
-	var parent models.ResourceInterface
 
 	// perform base validation
 	err = s.validate(r)
 	if err != nil {
-		return fmt.Errorf("\nGot Error While Validating, Auth'd Request failed w/ %v", err)
+		return "", fmt.Errorf("\nGot Error While Validating, Auth'd Request failed w/ %v", err)
 	}
 
 	json, err := s.toJSON(r)
@@ -53,22 +64,11 @@ func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 
 	method := "POST"
 
-	// TODO: refactor to getResourcePath()
 	path = s.getResourcePath(r, "")
-
-	parent = r.GetParent()
-
-	if parent != nil {
-		path = fmt.Sprintf("/api/node/mo/uni/%s/%s.json", parent.GetResourceName(), r.GetResourceName())
-	} else {
-		path = fmt.Sprintf("/api/node/mo/uni/%s.json", r.GetResourceName())
-	}
-
-	// END Refactor
 
 	req, err := s.client().newAuthdRequest(method, path, json)
 	if err != nil {
-		return fmt.Errorf("\nGot Error While Saving, Auth'd Request failed w/ %v", err)
+		return "", fmt.Errorf("\nGot Error While Saving, Auth'd Request failed w/ %v", err)
 	}
 
 	data, response, err := s.client().do(req)
@@ -77,16 +77,20 @@ func (s ResourceService) Save(r models.ResourceInterface) (err error) {
 	log.Infof("DATA: %#v\n\n", data)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	if err = s.getResponseError(data); err != nil {
-		return err
+	if err = s.getACIError(data); err != nil {
+		return "", err
 	}
 
-	return nil
+	dn = strings.TrimSuffix(strings.TrimPrefix(path, "/api/node/mo/"), ".json")
+
+	return dn, nil
 }
 
+// Get will retrieve a resource by complete domain name.
+// Returns the single resource matched or nil.
 func (s ResourceService) Get(domainName string) (*gabs.Container, error) {
 
 	// TODO: refactor to use domain name field
@@ -110,6 +114,8 @@ func (s ResourceService) Get(domainName string) (*gabs.Container, error) {
 
 }
 
+// Get will retrieve a resource by it's unique identifier.
+// Returns the single resource matched or nil.
 func (s ResourceService) GetById(id string) (*gabs.Container, error) {
 
 	path := fmt.Sprintf("/api/node/class/%s.json?query-target-filter=eq(%s.id,\"%s\")", s.ObjectClass, s.ObjectClass, id)
@@ -130,6 +136,8 @@ func (s ResourceService) GetById(id string) (*gabs.Container, error) {
 	return s.getChild(data)
 }
 
+// Get will retrieve a resource(s) by it's common name.
+// Returns an array since you could have resources with the same common name.
 func (s ResourceService) GetByName(name string) ([]*gabs.Container, error) {
 	path := fmt.Sprintf("/api/node/class/%s.json?query-target-filter=eq(%s.name,\"%s\")", s.ObjectClass, s.ObjectClass, name)
 
@@ -149,6 +157,8 @@ func (s ResourceService) GetByName(name string) ([]*gabs.Container, error) {
 	return s.getChildren(data)
 }
 
+// Get will retrieve all resource(s) for the object class of the service.
+// Returns an array or nil.
 func (s ResourceService) GetAll() ([]*gabs.Container, error) {
 	path := fmt.Sprintf("/api/node/class/%s.json", s.ObjectClass)
 	req, err := s.client().newAuthdRequest("GET", path, nil)
@@ -167,6 +177,8 @@ func (s ResourceService) GetAll() ([]*gabs.Container, error) {
 	return s.getChildren(data)
 }
 
+// Delete an existing resource using it's domain name.
+// Returns nil on success or error on failure.
 func (s ResourceService) Delete(domainName string) error {
 	containerJSON := []byte(fmt.Sprintf(`{
 		"%s": {
@@ -207,13 +219,14 @@ func (s ResourceService) Delete(domainName string) error {
 		return err
 	}
 
-	if err = s.getResponseError(data); err != nil {
+	if err = s.getACIError(data); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+// getChild is a convince method to grab the child item when you only expect one.
 func (s ResourceService) getChild(data *gabs.Container) (*gabs.Container, error) {
 	items, err := data.S("imdata").Children()
 
@@ -224,11 +237,12 @@ func (s ResourceService) getChild(data *gabs.Container) (*gabs.Container, error)
 	return items[0], nil
 }
 
+// getChildren is a convince method to grab the children items when you expect more than one.
 func (s ResourceService) getChildren(data *gabs.Container) ([]*gabs.Container, error) {
 	return data.S("imdata").Children()
 }
 
-// TODO: refactor the create json function from ResourceAttributes to ResourceService
+// toJSON will convert the resource passed in to it's JSON equivalent.
 func (s ResourceService) toJSON(model models.ResourceInterface) (*gabs.Container, error) {
 	var data *gabs.Container
 	var err error
@@ -249,7 +263,7 @@ func (s ResourceService) toJSON(model models.ResourceInterface) (*gabs.Container
 	return data, nil
 }
 
-// Create an empty JSON container compatible with ACI object model.
+// CreateEmptyJSONContainer will create an empty JSON container compatible with ACI object model.
 func (s ResourceService) CreateEmptyJSONContainer() (*gabs.Container, error) {
 	containerJSON := []byte(fmt.Sprintf(`{
 		"%s": {
@@ -261,44 +275,7 @@ func (s ResourceService) CreateEmptyJSONContainer() (*gabs.Container, error) {
 	return gabs.ParseJSON(containerJSON)
 }
 
-// TODO: Deprecate
-// Convert JSON container to ResourceAttributes.
-func (s ResourceService) fromJSONToAttributes(objectClass string, data *gabs.Container) (models.ResourceAttributes, error) {
-	var errors error
-	var path, value, errMsg string
-	var ok bool
-
-	// TODO: tags
-	var attributes = map[string]string{"dn": "", "name": "", "descr": "", "status": ""}
-
-	errMsg = "Could not find value '%s' within child of imdata"
-
-	for key, _ := range attributes {
-		path = objectClass + ".attributes." + key
-		if value, ok = data.Path(path).Data().(string); !ok {
-			errors = multierror.Append(errors, fmt.Errorf(errMsg, path))
-		}
-		attributes[key] = value
-	}
-
-	if errors != nil {
-		return models.ResourceAttributes{}, errors
-	}
-
-	paths := strings.Split(attributes["dn"], "/")
-
-	return models.ResourceAttributes{
-		DomainName:   attributes["dn"],
-		Name:         attributes["name"],
-		Description:  attributes["descr"],
-		Status:       attributes["status"],
-		ResourceName: paths[len(paths)-1],
-		ObjectClass:  objectClass,
-	}, nil
-
-}
-
-// fromJSONToMap converts the Gabs container into a string map based on the supplied model template
+// fromJSONToMap converts the Gabs container into a string map based on the supplied model template.
 func (s ResourceService) fromJSONToMap(template map[string]string, data *gabs.Container) (map[string]string, error) {
 	var errors error
 	var path, value, errMsg string
@@ -326,48 +303,53 @@ func (s ResourceService) fromJSONToMap(template map[string]string, data *gabs.Co
 	return template, nil
 }
 
+// getResourceName will build an ACI compatible resource name.
 func (s ResourceService) getResourceName(name string) string {
 	resourceName := fmt.Sprintf("%s-%s", s.ResourceNamePrefix, name)
 	return resourceName
 }
 
+// getResourcePath will build the appropriate HTTP route path for the given resource.
 func (s ResourceService) getResourcePath(model models.ResourceInterface, path string) string {
 	const basePath = "/api/node/mo/uni/"
 	var parent models.ResourceInterface
 
-	if path == "" {
-		path = basePath
-	}
-
 	parent = model.GetParent()
 
+	if path == "" {
+		path = ".json"
+	}
+
 	if parent == nil {
-		path += model.GetResourceName() + ".json"
-		return path
+		path = model.GetResourceName() + path
+		return basePath + path
 	} else {
-		path += model.GetResourceName() + "/"
+
+		path = "/" + model.GetResourceName() + path
 		return s.getResourcePath(parent, path)
 	}
 }
 
+// validate will apply the common validation rules the supplied resource.
 func (s ResourceService) validate(model models.ResourceInterface) error {
 	var err error
 
-	if s.HasParent && model.GetParent() == nil {
+	if model.HasParent() && model.GetParent() == nil {
 		err = fmt.Errorf("Models of type '%s' require a parent to be set", s.ObjectClass)
 	}
 
 	return err
 }
 
+// getGabsValue will read a value from the gabs.Container given the supplied path.
 func (s ResourceService) getGabsValue(data *gabs.Container, valuePath string) string {
 	// Not sure if this is Cisco or Gabs, but wow.
 	// @TODO find a better way to extract values from gabs containers
 	return data.Path(valuePath).Data().([]interface{})[0].(string)
 }
 
-//@TODO rename this, response should always refer to an http.Response for clarity, this is a response body digested as a gabs Container
-func (s ResourceService) getResponseError(responseData *gabs.Container) error {
+// getACIError will parse the HTTP response and pull out the ACI specific error messages.
+func (s ResourceService) getACIError(responseData *gabs.Container) error {
 	valpath := "imdata.error.attributes.text"
 
 	if exists := responseData.ExistsP("imdata.error.attributes.text"); exists {
@@ -381,6 +363,7 @@ func (s ResourceService) getResponseError(responseData *gabs.Container) error {
 	return nil
 }
 
+// combineErrors will append multiple errors into a single error.
 func (s ResourceService) combineErrors(data *gabs.Container, response *http.Response, err error) error {
 
 	var errors *multierror.Error
@@ -398,7 +381,7 @@ func (s ResourceService) combineErrors(data *gabs.Container, response *http.Resp
 		errors = multierror.Append(errors, newErr)
 	}
 
-	if newErr = s.getResponseError(data); newErr != nil {
+	if newErr = s.getACIError(data); newErr != nil {
 		errors = multierror.Append(errors, fmt.Errorf("Response Body contained an error message:\n   %s", newErr))
 	}
 

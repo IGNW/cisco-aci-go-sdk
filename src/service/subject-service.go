@@ -6,9 +6,6 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-const SJ_RESOURCE_NAME_PREFIX = "subj"
-const SJ_OBJECT_CLASS = "vzSubj"
-
 var subjectServiceInstance *SubjectService
 
 type SubjectService struct {
@@ -18,9 +15,8 @@ type SubjectService struct {
 func GetSubjectService(client *Client) *SubjectService {
 	if subjectServiceInstance == nil {
 		subjectServiceInstance = &SubjectService{ResourceService{
-			ObjectClass:        SJ_OBJECT_CLASS,
-			ResourceNamePrefix: SJ_RESOURCE_NAME_PREFIX,
-			HasParent:          true,
+			ObjectClass:        models.SUBJECT_OBJECT_CLASS,
+			ResourceNamePrefix: models.SUBJECT_RESOURCE_PREFIX,
 		}}
 	}
 	return subjectServiceInstance
@@ -33,28 +29,28 @@ func (ss SubjectService) New(name string, description string) *models.Subject {
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  SJ_OBJECT_CLASS,
+		ObjectClass:  models.SUBJECT_OBJECT_CLASS,
 		ResourceName: ss.getResourceName(name),
 	},
-		"",
-		"",
-		"",
-		"",
-		false,
+		"AtleastOne",
+		"AtleastOne",
+		"unspecified",
+		"unspecified",
+		true,
 	}
 
 	//Do any additional construction logic here.
 	return &s
 }
 
-func (ss SubjectService) Save(s *models.Subject) error {
+func (ss SubjectService) Save(s *models.Subject) (string, error) {
 
-	err := ss.ResourceService.Save(s)
+	dn, err := ss.ResourceService.Save(s)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 
@@ -117,18 +113,11 @@ func (ss SubjectService) fromDataArray(data []*gabs.Container) ([]*models.Subjec
 
 func (ss SubjectService) fromJSON(data *gabs.Container) (*models.Subject, error) {
 
-	resourceAttributes, err := ss.fromJSONToAttributes(ss.ObjectClass, data)
+	mapped, err := ss.fromJSONToMap(models.NewSubjectMap(), data)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &models.Subject{
-		resourceAttributes,
-		"",
-		"",
-		"",
-		"",
-		false,
-	}, nil
+	return models.NewSubject(mapped), nil
 }

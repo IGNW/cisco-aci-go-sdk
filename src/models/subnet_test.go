@@ -74,7 +74,7 @@ func (suite *SubnetTestSuite) TestNewSubnetFromDefaults() {
 	subnet := NewSubnet(NewSubnetMap())
 
 	expected := Subnet{
-		ResourceAttributes{Name: ""},
+		ResourceAttributes{Name: "", ResourceName: "subnet-[]"},
 		"nd",
 		"",
 		false,
@@ -101,7 +101,7 @@ func (suite *SubnetTestSuite) TestNewSubnetFromMap() {
 	}
 
 	assert.Equal(&Subnet{
-		ResourceAttributes{Name: "TestSubnetMap"},
+		ResourceAttributes{Name: "TestSubnetMap", ResourceName: "subnet-[10.1.1.101]"},
 		"unspecified",
 		"10.1.1.101",
 		true,
@@ -127,7 +127,7 @@ func (suite *SubnetTestSuite) TestNewSubnetFromMapMultiScope() {
 	}
 
 	assert.Equal(&Subnet{
-		ResourceAttributes{Name: "TestSubnetMap"},
+		ResourceAttributes{Name: "TestSubnetMap", ResourceName: "subnet-[10.1.1.101]"},
 		"unspecified",
 		"10.1.1.101",
 		true,

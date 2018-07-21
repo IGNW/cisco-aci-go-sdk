@@ -1,5 +1,8 @@
 package models
 
+const VRF_RESOURCE_PREFIX = "ctx"
+const VRF_OBJECT_CLASS = "fvCtx"
+
 // Represents an ACI VRF.
 // See: https://pubhub.devnetcloud.com/media/apic-mim-ref-311/docs/MO-fvCtx.html
 type VRF struct {
@@ -7,6 +10,18 @@ type VRF struct {
 	Enforce              string `unenforced enforced`
 	EnforcementDirection string `ingress egress`
 	BridgeDomains        []*BridgeDomain
+}
+
+func (v *VRF) GetObjectClass() string {
+	return VRF_OBJECT_CLASS
+}
+
+func (v *VRF) GetResourcePrefix() string {
+	return VRF_RESOURCE_PREFIX
+}
+
+func (v *VRF) HasParent() bool {
+	return true
 }
 
 func (v *VRF) ToMap() map[string]string {

@@ -1,4 +1,4 @@
-// +build integration-excluded
+// +build integration
 
 package service
 
@@ -26,7 +26,7 @@ func (suite *BridgeDomainServiceTestSuite) SetupTest() {
 
 	assert.NotNil(ten)
 
-	err := suite.client.Tenants.Save(ten)
+	_, err := suite.client.Tenants.Save(ten)
 
 	assert.Nil(err)
 
@@ -34,7 +34,7 @@ func (suite *BridgeDomainServiceTestSuite) SetupTest() {
 
 	ten.AddBridgeDomain(bd)
 
-	err = suite.client.BridgeDomains.Save(bd)
+	_, err = suite.client.BridgeDomains.Save(bd)
 
 	assert.Nil(err)
 }
@@ -90,22 +90,22 @@ func (suite *BridgeDomainServiceTestSuite) TestBridgeDomainServiceGetByName() {
 				ObjectClass:  "fvBD",
 				Status:       "",
 			},
-			"",
+			"regular",
 			false,
 			false,
 			"",
 			false,
 			false,
+			true,
+			true,
+			"::",
+			"00:22:BD:F8:19:FF",
+			"bd-flood",
 			false,
-			false,
-			"",
-			"",
-			"",
-			false,
-			false,
-			"",
-			"",
-			"",
+			true,
+			"proxy",
+			"flood",
+			"not-applicable",
 			nil,
 			nil,
 		})
@@ -131,22 +131,22 @@ func (suite *BridgeDomainServiceTestSuite) TestBridgeDomainServiceGetAll() {
 				ObjectClass:  "fvBD",
 				Status:       "",
 			},
-			"",
+			"regular",
 			false,
 			false,
 			"",
 			false,
 			false,
+			true,
+			true,
+			"::",
+			"00:22:BD:F8:19:FF",
+			"bd-flood",
 			false,
-			false,
-			"",
-			"",
-			"",
-			false,
-			false,
-			"",
-			"",
-			"",
+			true,
+			"proxy",
+			"flood",
+			"not-applicable",
 			nil,
 			nil,
 		})

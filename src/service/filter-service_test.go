@@ -1,4 +1,4 @@
-// +build integration-exclude
+// +build integration
 
 package service
 
@@ -26,7 +26,7 @@ func (suite *FilterServiceTestSuite) SetupTest() {
 
 	assert.NotNil(ten)
 
-	err := suite.client.Tenants.Save(ten)
+	_, err := suite.client.Tenants.Save(ten)
 
 	assert.Nil(err)
 
@@ -34,7 +34,7 @@ func (suite *FilterServiceTestSuite) SetupTest() {
 
 	ten.AddFilter(v)
 
-	err = suite.client.Filters.Save(v)
+	_, err = suite.client.Filters.Save(v)
 
 	assert.Nil(err)
 }
@@ -42,7 +42,7 @@ func (suite *FilterServiceTestSuite) SetupTest() {
 func (suite *FilterServiceTestSuite) TearDownTest() {
 	assert := assert.New(suite.T())
 
-	err := suite.client.Filters.Delete("uni/tn-IGNW-FT/rsbdFloodTo-IGNW-F1")
+	err := suite.client.Filters.Delete("uni/tn-IGNW-FT/flt-IGNW-F1")
 
 	assert.Nil(err)
 
@@ -54,15 +54,15 @@ func (suite *FilterServiceTestSuite) TearDownTest() {
 func (suite *FilterServiceTestSuite) TestFilterServiceGet() {
 	assert := assert.New(suite.T())
 
-	f, err := suite.client.Filters.Get("uni/tn-IGNW-FT/rsbdFloodTo-IGNW-F1")
+	f, err := suite.client.Filters.Get("uni/tn-IGNW-FT/flt-IGNW-F1")
 
 	assert.Nil(err)
 
 	if assert.NotNil(f) {
 
 		assert.Equal("IGNW-F1", f.Name)
-		assert.Equal("rsbdFloodTo-IGNW-F1", f.ResourceName)
-		assert.Equal("uni/tn-IGNW-FT/rsbdFloodTo-IGNW-F1", f.DomainName)
+		assert.Equal("flt-IGNW-F1", f.ResourceName)
+		assert.Equal("uni/tn-IGNW-FT/flt-IGNW-F1", f.DomainName)
 		assert.Equal("A testing Filter made by IGNW", f.Description)
 		assert.Empty(f.Status)
 
@@ -84,10 +84,10 @@ func (suite *FilterServiceTestSuite) TestFilterServiceGetByName() {
 		assert.Contains(filters, &models.Filter{
 			models.ResourceAttributes{
 				Name:         "IGNW-F1",
-				ResourceName: "rsbdFloodTo-IGNW-F1",
-				DomainName:   "uni/tn-IGNW-VT/rsbdFloodTo-IGNW-F1",
+				ResourceName: "flt-IGNW-F1",
+				DomainName:   "uni/tn-IGNW-FT/flt-IGNW-F1",
 				Description:  "A testing Filter made by IGNW",
-				ObjectClass:  "fvRsBdFloodTo",
+				ObjectClass:  "vzFilter",
 				Status:       "",
 			},
 			nil,
@@ -108,10 +108,10 @@ func (suite *FilterServiceTestSuite) TestFilterServiceGetAll() {
 		assert.Contains(data, &models.Filter{
 			models.ResourceAttributes{
 				Name:         "IGNW-F1",
-				ResourceName: "rsbdFloodTo-IGNW-F1",
-				DomainName:   "uni/tn-IGNW-VT/rsbdFloodTo-IGNW-F1",
+				ResourceName: "flt-IGNW-F1",
+				DomainName:   "uni/tn-IGNW-FT/flt-IGNW-F1",
 				Description:  "A testing Filter made by IGNW",
-				ObjectClass:  "fvRsBdFloodTo",
+				ObjectClass:  "vzFilter",
 				Status:       "",
 			},
 			nil,

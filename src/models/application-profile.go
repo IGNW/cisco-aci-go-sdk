@@ -1,9 +1,24 @@
 package models
 
+const AP_RESOURCE_PREFIX = "ap"
+const AP_OBJECT_CLASS = "fvAp"
+
 // Represents an ACI Application Profile.
 type AppProfile struct {
 	ResourceAttributes
 	EPGs []*EPG
+}
+
+func (ap *AppProfile) GetObjectClass() string {
+	return AP_OBJECT_CLASS
+}
+
+func (ap *AppProfile) GetResourcePrefix() string {
+	return AP_RESOURCE_PREFIX
+}
+
+func (ap *AppProfile) HasParent() bool {
+	return true
 }
 
 func (ap *AppProfile) ToMap() map[string]string {

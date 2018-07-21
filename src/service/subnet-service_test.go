@@ -1,13 +1,11 @@
-// +build integration-exclude
+// +build integration
 
 package service
 
 import (
-	"fmt"
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"strconv"
 	"testing"
 )
 
@@ -22,13 +20,13 @@ func (suite *SubnetServiceTestSuite) SetupTest() {
 
 	suite.client = GetClient()
 
-	assert.NotNil(client, "\nCould not get Client, therefore tests could not start")
+	assert.NotNil(suite.client, "\nCould not get Client, therefore tests could not start")
 
 	ten := suite.client.Tenants.New("IGNW-ST", "A Subnet testing tenant made by IGNW")
 
 	assert.NotNil(ten)
 
-	err := suite.client.Tenants.Save(ten)
+	_, err := suite.client.Tenants.Save(ten)
 
 	assert.Nil(err)
 
@@ -36,15 +34,17 @@ func (suite *SubnetServiceTestSuite) SetupTest() {
 
 	ten.AddBridgeDomain(bd)
 
-	err = suite.client.BridgeDomains.Save(bd)
+	_, err = suite.client.BridgeDomains.Save(bd)
 
 	assert.Nil(err)
 
 	s := suite.client.Subnets.New("IGNW-S1", "A testing Subnet made by IGNW")
 
+	s.IpAddress = "10.0.0.1/24"
+
 	bd.AddSubnet(s)
 
-	err = suite.client.Subnets.Save(s)
+	_, err = suite.client.Subnets.Save(s)
 
 	assert.Nil(err)
 }
@@ -52,11 +52,11 @@ func (suite *SubnetServiceTestSuite) SetupTest() {
 func (suite *SubnetServiceTestSuite) TearDownTest() {
 	assert := assert.New(suite.T())
 
-	err := suite.client.Subnets.Delete("uni/tn-IGNW-ST/BD-IGNW-BD2/subnet-IGNW-S1")
+	err := suite.client.Subnets.Delete("uni/tn-IGNW-ST/BD-IGNW-BD2/subnet-[10.0.0.1/24]")
 
 	assert.Nil(err)
 
-	err := suite.client.BridgeDomains.Delete("uni/tn-IGNW-ST/BD-IGNW-BD2")
+	err = suite.client.BridgeDomains.Delete("uni/tn-IGNW-ST/BD-IGNW-BD2")
 
 	assert.Nil(err)
 
@@ -68,15 +68,15 @@ func (suite *SubnetServiceTestSuite) TearDownTest() {
 func (suite *SubnetServiceTestSuite) TestSubnetServiceGet() {
 	assert := assert.New(suite.T())
 
-	s, err := suite.client.Subnets.Get("uni/tn-IGNW-ST/BD-IGNW-BD2/subnet-IGNW-S1")
+	s, err := suite.client.Subnets.Get("uni/tn-IGNW-ST/BD-IGNW-BD2/subnet-[10.0.0.1/24]")
 
 	assert.Nil(err)
 
 	if assert.NotNil(s) {
 
 		assert.Equal("IGNW-S1", s.Name)
-		assert.Equal("subnet-IGNW-S1", s.ResourceName)
-		assert.Equal("uni/tn-IGNW-ET/BD-IGNW-BD2/subnet-IGNW-S1", s.DomainName)
+		assert.Equal("subnet-[10.0.0.1/24]", s.ResourceName)
+		assert.Equal("uni/tn-IGNW-ST/BD-IGNW-BD2/subnet-[10.0.0.1/24]", s.DomainName)
 		assert.Equal("A testing Subnet made by IGNW", s.Description)
 		assert.Empty(s.Status)
 
@@ -95,17 +95,20 @@ func (suite *SubnetServiceTestSuite) TestSubnetServiceGetByName() {
 
 		assert.Len(subnets, 1)
 
-		assert.Contains(Subnets, &models.Subnet{
+		assert.Contains(subnets, &models.Subnet{
 			models.ResourceAttributes{
 				Name:         "IGNW-S1",
-				ResourceName: "subnet-IGNW-S1",
-				DomainName:   "uni/tn-IGNW-ET/BD-IGNW-BD2/subnet-IGNW-S1",
+				ResourceName: "subnet-[10.0.0.1/24]",
+				DomainName:   "uni/tn-IGNW-ST/BD-IGNW-BD2/subnet-[10.0.0.1/24]",
 				Description:  "A testing Subnet made by IGNW",
 				ObjectClass:  "fvSubnet",
 				Status:       "",
 			},
-			nil,
-			nil,
+			"nd",
+			"10.0.0.1/24",
+			false,
+			[]string{"private"},
+			false,
 		})
 	}
 }
@@ -122,14 +125,17 @@ func (suite *SubnetServiceTestSuite) TestSubnetServiceGetAll() {
 		assert.Contains(data, &models.Subnet{
 			models.ResourceAttributes{
 				Name:         "IGNW-S1",
-				ResourceName: "subnet-IGNW-S1",
-				DomainName:   "uni/tn-IGNW-ET/BD-IGNW-BD2/subnet-IGNW-S1",
+				ResourceName: "subnet-[10.0.0.1/24]",
+				DomainName:   "uni/tn-IGNW-ST/BD-IGNW-BD2/subnet-[10.0.0.1/24]",
 				Description:  "A testing Subnet made by IGNW",
 				ObjectClass:  "fvSubnet",
 				Status:       "",
 			},
-			nil,
-			nil,
+			"nd",
+			"10.0.0.1/24",
+			false,
+			[]string{"private"},
+			false,
 		})
 	}
 }

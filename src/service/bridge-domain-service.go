@@ -8,50 +8,48 @@ import (
 
 var bridgeDomainServiceInstance *BridgeDomainService
 
-const BD_RESOURCE_NAME_PREFIX = "BD"
-const BD_OBJECT_CLASS = "fvBD"
-
+// BridgeDomainService is used to manage BridgeDomain resources.
 type BridgeDomainService struct {
 	ResourceService
 }
 
+// GetBridgeDomainService will construct or return the singleton for the BridgeDomainService.
 func GetBridgeDomainService(client *Client) *BridgeDomainService {
 	if bridgeDomainServiceInstance == nil {
 		bridgeDomainServiceInstance = &BridgeDomainService{ResourceService{
-			ObjectClass:        BD_OBJECT_CLASS,
-			ResourceNamePrefix: BD_RESOURCE_NAME_PREFIX,
-			HasParent:          true,
+			ObjectClass:        models.BD_OBJECT_CLASS,
+			ResourceNamePrefix: models.BD_RESOURCE_PREFIX,
 		}}
 	}
 	return bridgeDomainServiceInstance
 }
 
-/* New creates a new BridgeDomain with the appropriate default values */
+// New creates a new BridgeDomain with the appropriate default values.
 func (bds BridgeDomainService) New(name string, description string) *models.BridgeDomain {
 
 	b := models.BridgeDomain{models.ResourceAttributes{
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  BD_OBJECT_CLASS,
+		ObjectClass:  models.BD_OBJECT_CLASS,
 		ResourceName: bds.getResourceName(name),
 	},
-		"",
+		"regular",
 		false,
 		false,
 		"",
 		false,
 		false,
+		true,
+		true,
+		"::",
+		"00:22:BD:F8:19:FF",
+		"bd-flood",
 		false,
-		false,
-		"",
-		"",
-		"",
-		false,
-		false,
-		"",
-		"",
-		"",
+		true,
+		"proxy",
+		"flood",
+		"not-applicable",
 		nil,
 		nil,
 	}
@@ -60,17 +58,19 @@ func (bds BridgeDomainService) New(name string, description string) *models.Brid
 	return &b
 }
 
-func (bds BridgeDomainService) Save(t *models.BridgeDomain) error {
+// Save a new BridgeDomain or update an existing one.
+func (bds BridgeDomainService) Save(t *models.BridgeDomain) (string, error) {
 
-	err := bds.ResourceService.Save(t)
+	dn, err := bds.ResourceService.Save(t)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 
+// Get will retrieve an BridgeDomain by it's domain name.
 func (bds BridgeDomainService) Get(domainName string) (*models.BridgeDomain, error) {
 
 	data, err := bds.ResourceService.Get(domainName)
@@ -83,6 +83,7 @@ func (bds BridgeDomainService) Get(domainName string) (*models.BridgeDomain, err
 
 }
 
+// GetById will retrieve an BridgeDomain by it's unique identifier.
 func (bds BridgeDomainService) GetById(id string) (*models.BridgeDomain, error) {
 
 	data, err := bds.ResourceService.GetById(id)
@@ -94,6 +95,7 @@ func (bds BridgeDomainService) GetById(id string) (*models.BridgeDomain, error) 
 	return bds.fromJSON(data)
 }
 
+// GetByName will retrieve BridgeDomain(s) by common name.
 func (bds BridgeDomainService) GetByName(name string) ([]*models.BridgeDomain, error) {
 
 	data, err := bds.ResourceService.GetByName(name)
@@ -105,6 +107,7 @@ func (bds BridgeDomainService) GetByName(name string) ([]*models.BridgeDomain, e
 	return bds.fromDataArray(data)
 }
 
+// GetByName will retrieve all BridgeDomain(s).
 func (bds BridgeDomainService) GetAll() ([]*models.BridgeDomain, error) {
 
 	data, err := bds.ResourceService.GetAll()
@@ -116,6 +119,7 @@ func (bds BridgeDomainService) GetAll() ([]*models.BridgeDomain, error) {
 	return bds.fromDataArray(data)
 }
 
+// fromDataArray will convert an array of gabs.Container (JSON) to BridgeDomain(s)
 func (bds BridgeDomainService) fromDataArray(data []*gabs.Container) ([]*models.BridgeDomain, error) {
 	var bridgeDomains []*models.BridgeDomain
 	var err, errors error
@@ -136,6 +140,7 @@ func (bds BridgeDomainService) fromDataArray(data []*gabs.Container) ([]*models.
 	return bridgeDomains, err
 }
 
+// fromJSON will convert a gabs.Container (JSON) to BridgeDomain
 func (bds BridgeDomainService) fromJSON(data *gabs.Container) (*models.BridgeDomain, error) {
 
 	modelMap, err := bds.fromJSONToMap(models.NewBridgeDomainMap(), data)

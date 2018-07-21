@@ -6,10 +6,6 @@ import (
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 )
 
-// TODO: validate these settings are correct
-const SN_RESOURCE_NAME_PREFIX = "subnet"
-const SN_OBJECT_CLASS = "fvSubnet"
-
 var subnetServiceInstance *SubnetService
 
 type SubnetService struct {
@@ -19,9 +15,8 @@ type SubnetService struct {
 func GetSubnetService(client *Client) *SubnetService {
 	if subnetServiceInstance == nil {
 		subnetServiceInstance = &SubnetService{ResourceService{
-			ObjectClass:        SN_OBJECT_CLASS,
-			ResourceNamePrefix: SJ_RESOURCE_NAME_PREFIX,
-			HasParent:          true,
+			ObjectClass:        models.SUBNET_OBJECT_CLASS,
+			ResourceNamePrefix: models.SUBNET_RESOURCE_NAME_PREFIX,
 		}}
 	}
 	return subnetServiceInstance
@@ -34,13 +29,13 @@ func (ss SubnetService) New(name string, description string) *models.Subnet {
 		Name:         name,
 		Description:  description,
 		Status:       "created, modified",
-		ObjectClass:  SJ_OBJECT_CLASS,
+		ObjectClass:  models.SUBNET_OBJECT_CLASS,
 		ResourceName: ss.getResourceName(name),
 	},
-		"",
+		"nd",
 		"",
 		false,
-		nil,
+		[]string{"private"},
 		false,
 	}
 
@@ -48,14 +43,18 @@ func (ss SubnetService) New(name string, description string) *models.Subnet {
 	return &s
 }
 
-func (ss SubnetService) Save(s *models.Subnet) error {
+func (ss SubnetService) Save(s *models.Subnet) (string, error) {
 
-	err := ss.ResourceService.Save(s)
+	// HACK: fix resource name this one has a difference scheme than all the others
+	s.ResourceName = s.GetResourceName()
+
+	dn, err := ss.ResourceService.Save(s)
+
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return dn, nil
 
 }
 
@@ -117,18 +116,11 @@ func (ss SubnetService) fromDataArray(data []*gabs.Container) ([]*models.Subnet,
 }
 
 func (ss SubnetService) fromJSON(data *gabs.Container) (*models.Subnet, error) {
-	resourceAttributes, err := ss.fromJSONToAttributes(ss.ObjectClass, data)
+	mapped, err := ss.fromJSONToMap(models.NewSubnetMap(), data)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &models.Subnet{
-		resourceAttributes,
-		"",
-		"",
-		false,
-		nil,
-		false,
-	}, nil
+	return models.NewSubnet(mapped), nil
 }
