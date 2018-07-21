@@ -4,6 +4,7 @@ package examples
 
 import (
 	"fmt"
+
 	"github.com/ignw/cisco-aci-go-sdk/src/models"
 	"github.com/ignw/cisco-aci-go-sdk/src/service"
 )
@@ -17,7 +18,7 @@ func main() {
 
 	tenant = client.Tenants.New("Example-Tenant", "This is an example tenant")
 
-	err = client.Tenants.Save(tenant)
+	_, err = client.Tenants.Save(tenant)
 
 	if err != nil {
 		fmt.Printf("Error creating tenant: %s", err.Error())
