@@ -118,6 +118,11 @@ func (cs ContractService) fromDataArray(data []*gabs.Container) ([]*models.Contr
 
 // fromJSON will convert a gabs.Container (JSON) to Contract
 func (cs ContractService) fromJSON(data *gabs.Container) (*models.Contract, error) {
+
+	if data == nil {
+		return nil, nil
+	}
+
 	mapped, err := cs.fromJSONToMap(models.NewContractMap(), data)
 
 	if err != nil {

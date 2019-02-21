@@ -234,7 +234,11 @@ func (s ResourceService) getChild(data *gabs.Container) (*gabs.Container, error)
 		return nil, err
 	}
 
-	return items[0], nil
+	if len(items) > 0 {
+		return items[0], nil
+	}
+
+	return nil, nil
 }
 
 // getChildren is a convince method to grab the children items when you expect more than one.
