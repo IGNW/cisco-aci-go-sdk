@@ -128,6 +128,11 @@ func (aps AppProfileService) fromDataArray(data []*gabs.Container) ([]*models.Ap
 
 // fromJSON will convert a gabs.Container (JSON) to AppProfile
 func (aps AppProfileService) fromJSON(data *gabs.Container) (*models.AppProfile, error) {
+
+	if data == nil {
+		return nil, nil
+	}
+
 	mapped, err := aps.fromJSONToMap(models.NewAppProfileMap(), data)
 
 	if err != nil {

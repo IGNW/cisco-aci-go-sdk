@@ -119,6 +119,11 @@ func (fs FilterService) fromDataArray(data []*gabs.Container) ([]*models.Filter,
 
 // fromJSON will convert a gabs.Container (JSON) to Filter
 func (fs FilterService) fromJSON(data *gabs.Container) (*models.Filter, error) {
+
+	if data == nil {
+		return nil, nil
+	}
+
 	mapped, err := fs.fromJSONToMap(models.NewFilterMap(), data)
 
 	if err != nil {

@@ -109,6 +109,11 @@ func (vs VRFService) fromDataArray(data []*gabs.Container) ([]*models.VRF, error
 }
 
 func (vs VRFService) fromJSON(data *gabs.Container) (*models.VRF, error) {
+
+	if data == nil {
+		return nil, nil
+	}
+
 	mapped, err := vs.fromJSONToMap(models.NewVRFMap(), data)
 
 	if err != nil {

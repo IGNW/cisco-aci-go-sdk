@@ -116,6 +116,11 @@ func (ss SubnetService) fromDataArray(data []*gabs.Container) ([]*models.Subnet,
 }
 
 func (ss SubnetService) fromJSON(data *gabs.Container) (*models.Subnet, error) {
+
+	if data == nil {
+		return nil, nil
+	}
+
 	mapped, err := ss.fromJSONToMap(models.NewSubnetMap(), data)
 
 	if err != nil {

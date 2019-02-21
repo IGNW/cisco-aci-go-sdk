@@ -131,6 +131,11 @@ func (es EPGService) fromDataArray(data []*gabs.Container) ([]*models.EPG, error
 
 // fromJSON will convert a gabs.Container (JSON) to EPG
 func (es EPGService) fromJSON(data *gabs.Container) (*models.EPG, error) {
+
+	if data == nil {
+		return nil, nil
+	}
+
 	mapped, err := es.fromJSONToMap(models.NewEPGMap(), data)
 
 	if err != nil {

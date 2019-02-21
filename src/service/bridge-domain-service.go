@@ -143,6 +143,10 @@ func (bds BridgeDomainService) fromDataArray(data []*gabs.Container) ([]*models.
 // fromJSON will convert a gabs.Container (JSON) to BridgeDomain
 func (bds BridgeDomainService) fromJSON(data *gabs.Container) (*models.BridgeDomain, error) {
 
+	if data == nil {
+		return nil, nil
+	}
+
 	modelMap, err := bds.fromJSONToMap(models.NewBridgeDomainMap(), data)
 
 	if err != nil {

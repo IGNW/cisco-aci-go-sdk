@@ -113,6 +113,10 @@ func (ss SubjectService) fromDataArray(data []*gabs.Container) ([]*models.Subjec
 
 func (ss SubjectService) fromJSON(data *gabs.Container) (*models.Subject, error) {
 
+	if data == nil {
+		return nil, nil
+	}
+
 	mapped, err := ss.fromJSONToMap(models.NewSubjectMap(), data)
 
 	if err != nil {

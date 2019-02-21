@@ -137,6 +137,11 @@ func (es EntryService) fromDataArray(data []*gabs.Container) ([]*models.Entry, e
 
 // fromJSON will convert a gabs.Container (JSON) to Entry
 func (es EntryService) fromJSON(data *gabs.Container) (*models.Entry, error) {
+
+	if data == nil {
+		return nil, nil
+	}
+
 	mapped, err := es.fromJSONToMap(models.NewEntryMap(), data)
 
 	if err != nil {
